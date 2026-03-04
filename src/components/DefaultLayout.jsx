@@ -28,9 +28,11 @@ export const DefaultLayout = ({ children }) => {
             {/* Sidebar (Desktop Only) */}
             <nav className="w-full md:w-64 bg-surface border-r border-white/10 hidden md:flex flex-col">
                 <div className="p-4 border-b border-white/10">
-                    <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
-                        Epic Cards
-                    </h1>
+                    <div className="flex items-center">
+                        <span className="text-xl font-black tracking-widest uppercase text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
+                            Epic Cards by BNS
+                        </span>
+                    </div>
                     <p className="text-xs text-gray-400 mt-1">{isAdmin ? 'Admin Panel' : isStaff ? 'Store Portal' : 'Player Dashboard'}</p>
                 </div>
 

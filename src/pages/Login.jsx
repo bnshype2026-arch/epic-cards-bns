@@ -120,8 +120,8 @@ export const Login = () => {
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-white/10 mb-6 shadow-inner">
                         <KeyRound className="w-8 h-8 text-white drop-shadow-md" />
                     </div>
-                    <h1 className="text-4xl font-black bg-gradient-to-r from-primary via-purple-400 to-white bg-clip-text text-transparent drop-shadow-sm">
-                        Epic Cards
+                    <h1 className="text-4xl font-black mb-2 tracking-widest uppercase drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">
+                        Epic Cards by BNS
                     </h1>
                     <p className="text-gray-400 mt-3 font-medium tracking-wide">
                         {isForgotPassword ? (otpSent ? 'Reset Password' : 'Find Your Account') : 'Enter the Vault'}

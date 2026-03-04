@@ -62,10 +62,10 @@ export const CardInspectModal = ({ instance, onClose, onDelete }) => {
     }
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in" onClick={onClose}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in overflow-y-auto" onClick={onClose}>
             {/* Click propagation stop inside the card */}
             <div
-                className={`relative w-full max-w-[400px] rounded-3xl border-4 overflow-hidden flex flex-col card-shine animate-float pointer-events-auto transform scale-100 transition-transform ${getRarityColor(template.rarity)}`}
+                className={`relative w-full max-w-[400px] my-auto rounded-3xl border-4 overflow-hidden flex flex-col card-shine animate-float pointer-events-auto transform scale-100 transition-transform ${getRarityColor(template.rarity)}`}
                 onClick={e => e.stopPropagation()}
             >
                 <button

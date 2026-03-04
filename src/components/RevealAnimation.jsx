@@ -52,7 +52,7 @@ export const RevealAnimation = ({ onComplete, onBreakSeal, onCancel }) => {
                 const chord = [0, 4, 7, 11, 14, -12] // C4, E4, G4, B4, D5, C3
 
                 gainNode.gain.setValueAtTime(0, now)
-                gainNode.gain.linearRampToValueAtTime(0.4, now + 2) // Slow 2-second fade in
+                gainNode.gain.linearRampToValueAtTime(0.8, now + 2) // Much louder and intense fade in
 
                 chord.forEach((semitone) => {
                     // Create two oscillators per note for a thick "chorus" pad effect
@@ -72,9 +72,9 @@ export const RevealAnimation = ({ onComplete, onBreakSeal, onCancel }) => {
                         filter.type = 'lowpass'
                         filter.frequency.setValueAtTime(800 + (Math.random() * 400), now)
 
-                        // Individual gain to roughly balance the chord
+                        // Individual gain to roughly balance the chord (boosted for high volume)
                         const oscGain = audioCtx.createGain()
-                        oscGain.gain.value = j === 0 ? 0.05 : 0.02
+                        oscGain.gain.value = j === 0 ? 0.15 : 0.08
 
                         noteOsc.connect(filter)
                         filter.connect(oscGain)
@@ -123,7 +123,7 @@ export const RevealAnimation = ({ onComplete, onBreakSeal, onCancel }) => {
                 }
 
                 gainNode.gain.setValueAtTime(0, now)
-                gainNode.gain.linearRampToValueAtTime(0.4, now + 0.1) // Fast fade in for the burst
+                gainNode.gain.linearRampToValueAtTime(0.8, now + 0.1) // Fast fade in for the burst (much louder)
                 gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration) // Long fading tail
 
                 chord.forEach((semitone) => {
@@ -142,8 +142,9 @@ export const RevealAnimation = ({ onComplete, onBreakSeal, onCancel }) => {
                         filter.type = 'lowpass'
                         filter.frequency.setValueAtTime(1200 + (Math.random() * 800), now)
 
+                        // Much thicker volume for the burst
                         const oscGain = audioCtx.createGain()
-                        oscGain.gain.value = j === 0 ? 0.05 : 0.02
+                        oscGain.gain.value = j === 0 ? 0.15 : 0.08
 
                         noteOsc.connect(filter)
                         filter.connect(oscGain)
@@ -154,11 +155,11 @@ export const RevealAnimation = ({ onComplete, onBreakSeal, onCancel }) => {
                     }
                 })
             } else if (type === 'claim') {
-                // Sharp click
+                // Sharp click (louder)
                 osc.type = 'square'
                 osc.frequency.setValueAtTime(800, now)
                 osc.frequency.exponentialRampToValueAtTime(100, now + 0.1)
-                gainNode.gain.setValueAtTime(0.1, now)
+                gainNode.gain.setValueAtTime(0.3, now)
                 gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1)
                 osc.start(now)
                 osc.stop(now + 0.1)
@@ -213,7 +214,7 @@ export const RevealAnimation = ({ onComplete, onBreakSeal, onCancel }) => {
     }
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm reveal-overlay">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm reveal-overlay overflow-y-auto">
 
             {showConfetti && revealData && (
                 <Confetti
@@ -228,7 +229,7 @@ export const RevealAnimation = ({ onComplete, onBreakSeal, onCancel }) => {
             )}
 
             {stage === 'suspense' || stage === 'fetching' ? (
-                <div className="flex flex-col items-center gap-8 relative z-[102] animate-fade-in-up">
+                <div className="flex flex-col items-center gap-8 relative z-[102] animate-fade-in-up py-10 my-auto">
                     <button
                         onClick={handleCancel}
                         disabled={stage === 'fetching'}
@@ -268,7 +269,7 @@ export const RevealAnimation = ({ onComplete, onBreakSeal, onCancel }) => {
                     </div>
                 </div>
             ) : (
-                <div className={`flex flex-col items-center gap-8 relative z-[102] 
+                <div className={`flex flex-col items-center gap-8 relative z-[102] py-10 my-auto w-full
                         ${['Common', 'Rare'].includes(revealData.template.rarity) ? 'animate-bounce-in' : 'animate-float'} 
                         glow-${revealData.template.rarity.toLowerCase()}`}
                 >

@@ -49,8 +49,8 @@ export const Signup = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                         </svg>
                     </div>
-                    <h1 className="text-4xl font-black bg-gradient-to-r from-primary via-purple-400 to-white bg-clip-text text-transparent drop-shadow-sm">
-                        Epic Cards
+                    <h1 className="text-4xl font-black mb-2 tracking-widest uppercase drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">
+                        Epic Cards by BNS
                     </h1>
                     <p className="text-gray-400 mt-3 font-medium tracking-wide">Register Account</p>
                 </div>
