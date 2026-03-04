@@ -52,7 +52,7 @@ export const RevealAnimation = ({ onComplete, onBreakSeal, onCancel }) => {
                 const chord = [0, 4, 7, 11, 14, -12] // C4, E4, G4, B4, D5, C3
 
                 gainNode.gain.setValueAtTime(0, now)
-                gainNode.gain.linearRampToValueAtTime(0.8, now + 2) // Much louder and intense fade in
+                gainNode.gain.linearRampToValueAtTime(1.6, now + 2) // Extremely loud and intense fade in
 
                 chord.forEach((semitone) => {
                     // Create two oscillators per note for a thick "chorus" pad effect
@@ -72,9 +72,9 @@ export const RevealAnimation = ({ onComplete, onBreakSeal, onCancel }) => {
                         filter.type = 'lowpass'
                         filter.frequency.setValueAtTime(800 + (Math.random() * 400), now)
 
-                        // Individual gain to roughly balance the chord (boosted for high volume)
+                        // Individual gain to roughly balance the chord (boosted for ultra high volume)
                         const oscGain = audioCtx.createGain()
-                        oscGain.gain.value = j === 0 ? 0.15 : 0.08
+                        oscGain.gain.value = j === 0 ? 0.3 : 0.15
 
                         noteOsc.connect(filter)
                         filter.connect(oscGain)
@@ -123,7 +123,7 @@ export const RevealAnimation = ({ onComplete, onBreakSeal, onCancel }) => {
                 }
 
                 gainNode.gain.setValueAtTime(0, now)
-                gainNode.gain.linearRampToValueAtTime(0.8, now + 0.1) // Fast fade in for the burst (much louder)
+                gainNode.gain.linearRampToValueAtTime(1.6, now + 0.1) // Ultra fast fade in for the burst (insanely loud)
                 gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration) // Long fading tail
 
                 chord.forEach((semitone) => {
@@ -144,7 +144,7 @@ export const RevealAnimation = ({ onComplete, onBreakSeal, onCancel }) => {
 
                         // Much thicker volume for the burst
                         const oscGain = audioCtx.createGain()
-                        oscGain.gain.value = j === 0 ? 0.15 : 0.08
+                        oscGain.gain.value = j === 0 ? 0.3 : 0.15
 
                         noteOsc.connect(filter)
                         filter.connect(oscGain)
@@ -155,14 +155,29 @@ export const RevealAnimation = ({ onComplete, onBreakSeal, onCancel }) => {
                     }
                 })
             } else if (type === 'claim') {
-                // Sharp click (louder)
-                osc.type = 'square'
-                osc.frequency.setValueAtTime(800, now)
-                osc.frequency.exponentialRampToValueAtTime(100, now + 0.1)
-                gainNode.gain.setValueAtTime(0.3, now)
-                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1)
-                osc.start(now)
-                osc.stop(now + 0.1)
+                // Triumphant Major Chime (C maj)
+                const baseFreq = 523.25; // C5
+                const chord = [0, 4, 7, 12]; // C5, E5, G5, C6
+                const duration = 0.8;
+
+                gainNode.gain.setValueAtTime(0, now)
+                gainNode.gain.linearRampToValueAtTime(0.8, now + 0.05)
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration)
+
+                chord.forEach((semitone) => {
+                    const noteOsc = audioCtx.createOscillator()
+                    noteOsc.type = 'sine'
+                    noteOsc.frequency.value = baseFreq * Math.pow(2, semitone / 12)
+
+                    const oscGain = audioCtx.createGain()
+                    oscGain.gain.value = 0.4
+
+                    noteOsc.connect(oscGain)
+                    oscGain.connect(gainNode)
+
+                    noteOsc.start(now)
+                    noteOsc.stop(now + duration)
+                })
             }
         } catch (e) {
             console.warn('Audio play failed:', e)

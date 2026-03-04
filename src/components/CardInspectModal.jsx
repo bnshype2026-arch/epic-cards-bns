@@ -69,7 +69,33 @@ export const CardInspectModal = ({ instance, onClose, onDelete }) => {
                 onClick={e => e.stopPropagation()}
             >
                 <button
-                    onClick={onClose}
+                    onClick={() => {
+                        const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+                        const osc = audioCtx.createOscillator()
+                        const filter = audioCtx.createBiquadFilter()
+                        const gainNode = audioCtx.createGain()
+
+                        // White noise approximation for a swoosh string
+                        osc.type = 'sawtooth'
+                        osc.frequency.setValueAtTime(200, audioCtx.currentTime)
+                        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3)
+
+                        filter.type = 'lowpass'
+                        filter.frequency.setValueAtTime(2000, audioCtx.currentTime)
+                        filter.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3)
+
+                        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime)
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3)
+
+                        osc.connect(filter)
+                        filter.connect(gainNode)
+                        gainNode.connect(audioCtx.destination)
+
+                        osc.start()
+                        osc.stop(audioCtx.currentTime + 0.3)
+
+                        onClose()
+                    }}
                     className="absolute top-4 right-4 z-50 bg-black/50 hover:bg-black/80 p-2 rounded-full backdrop-blur transition-colors"
                 >
                     <X size={20} className="text-white" />
@@ -190,7 +216,7 @@ export const CardInspectModal = ({ instance, onClose, onDelete }) => {
                                     oscillator.type = 'triangle'
                                     oscillator.frequency.setValueAtTime(showBarcode ? 600 : 400, audioCtx.currentTime)
                                     oscillator.frequency.exponentialRampToValueAtTime(showBarcode ? 400 : 600, audioCtx.currentTime + 0.1)
-                                    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime)
+                                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime)
                                     gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1)
                                     oscillator.connect(gainNode)
                                     gainNode.connect(audioCtx.destination)
