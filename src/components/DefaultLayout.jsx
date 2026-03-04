@@ -11,27 +11,9 @@ export const DefaultLayout = ({ children }) => {
 
             {/* Application Header (Mobile Only for Admin, Mobile+Desktop for User Top Bar) */}
             <div className={`md:hidden p-4 border-b border-white/10 flex items-center justify-between bg-surface/90 backdrop-blur-md sticky top-0 z-40`}>
-                {/* Desktop & Tablet: Back Button + Title */}
-                <div className="flex items-center gap-4 hidden sm:flex">
-                    {showBackButton && (
-                        <button
-                            onClick={() => navigate('/')}
-                            className="p-2 hover:bg-white/10 rounded-xl transition-colors text-gray-400 hover:text-white"
-                        >
-                            <ArrowLeft size={24} />
-                        </button>
-                    )}
-                    <h1 className="text-xl md:text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400 tracking-wider">
-                        {getHeaderText()}
-                    </h1>
-                </div>
-
-                {/* Mobile: Title Only (Back button is in bottom nav if needed, or handled differently on mobile) */}
-                <div className="sm:hidden flex-1 text-center">
-                    <h1 className="text-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400 tracking-wider truncate">
-                        Epic Cards <span className="text-xs text-indigo-300 ml-1">by BNS</span>
-                    </h1>
-                </div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent truncate flex-1">
+                    Epic Cards <span className="text-xs text-indigo-300 ml-1">by BNS</span>
+                </h1>
                 <div className="flex items-center gap-3">
                     {!isStaff && (
                         <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
