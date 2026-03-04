@@ -1,0 +1,183 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-white antialiased selection:bg-primary/30 overflow-x-hidden;
+  }
+}
+
+.card-shine-common,
+.card-shine-rare,
+.card-shine-epic,
+.card-shine-legendary,
+.card-shine-mystic {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-shine-common::after,
+.card-shine-rare::after,
+.card-shine-epic::after,
+.card-shine-legendary::after,
+.card-shine-mystic::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  transform: skewX(-20deg);
+}
+
+.card-shine-common::after {
+  background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+  animation: shine 6s infinite;
+}
+
+.card-shine-rare::after {
+  background: linear-gradient(to right, transparent 0%, rgba(96, 165, 250, 0.3) 50%, transparent 100%);
+  animation: shine 5s infinite;
+}
+
+.card-shine-epic::after {
+  background: linear-gradient(to right, transparent 0%, rgba(192, 132, 252, 0.4) 50%, transparent 100%);
+  animation: shine 4s infinite;
+}
+
+.card-shine-legendary::after {
+  background: linear-gradient(to right, transparent 0%, rgba(251, 191, 36, 0.6) 50%, transparent 100%);
+  animation: shine 3s infinite;
+}
+
+.card-shine-mystic::after {
+  background: linear-gradient(to right, transparent 0%, rgba(244, 63, 94, 0.8) 50%, transparent 100%);
+  animation: shine 2s infinite;
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+
+  20% {
+    left: 200%;
+  }
+
+  100% {
+    left: 200%;
+  }
+}
+
+/* Rarity specific glow effects */
+.glow-common {
+  box-shadow: 0 0 15px rgba(161, 161, 170, 0.4);
+}
+
+.glow-rare {
+  box-shadow: 0 0 20px rgba(96, 165, 250, 0.5);
+}
+
+.glow-epic {
+  box-shadow: 0 0 25px rgba(192, 132, 252, 0.6);
+}
+
+.glow-legendary {
+  box-shadow: 0 0 30px rgba(251, 191, 36, 0.7);
+}
+
+.glow-mystic {
+  box-shadow: 0 0 40px rgba(244, 63, 94, 0.8);
+}
+
+/* Reveal Animation Overlays */
+.reveal-overlay {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.shake-build-up {
+  animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both infinite;
+}
+
+@keyframes shake {
+
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin 10s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom Scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0d;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
