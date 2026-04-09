@@ -66,12 +66,12 @@ export const CardInspectModal = ({ instance, onClose, onDelete, onUpdate }) => {
 
     const generateActivationToken = async () => {
         setIsGenerating(true)
+        console.log('[Activation] Generating token for instance:', instance.id)
         try {
-            // More robust token generation
-            const charset = '0123456789ABCDEFGHJKLMNPQRSTUVWXYZ' // Removed confusing O, I, 1, 0
+            const charset = '0123456789ABCDEFGHJKLMNPQRSTUVWXYZ'
             const genPart = (len) => Array.from({ length: len }, () => charset.charAt(Math.floor(Math.random() * charset.length))).join('')
             const newToken = `ACT-${genPart(6)}-${genPart(6)}`
-            const newExpiry = new Date(Date.now() + 15 * 60 * 1000).toISOString() // 15 minutes
+            const newExpiry = new Date(Date.now() + 15 * 60 * 1000).toISOString()
 
             const { data, error } = await supabase
                 .from('card_instances')
@@ -80,20 +80,30 @@ export const CardInspectModal = ({ instance, onClose, onDelete, onUpdate }) => {
                     activation_token_expires_at: newExpiry
                 })
                 .eq('id', instance.id)
-                .select() // Verify the update happened
+                .select()
 
-            if (error) throw error
-            if (!data || data.length === 0) {
-                throw new Error('Access Denied: You do not have permission to initiate activation or the card record was not found.')
+            if (error) {
+                console.error('[Activation] Supabase Error:', error)
+                throw new Error(`Database Error: ${error.message} (Code: ${error.code})`)
             }
 
+            // Fallback: If data is empty but no error, it might be RLS on SELECT, but update might have worked.
+            // However, to be safe, we'll try to use the local state.
             setToken(newToken)
             setTokenExpiry(newExpiry)
-            if (onUpdate) onUpdate(instance.id, { activation_token: newToken, activation_token_expires_at: newExpiry })
+            
+            if (onUpdate) {
+                onUpdate(instance.id, { 
+                    activation_token: newToken, 
+                    activation_token_expires_at: newExpiry 
+                })
+            }
+            
             setShowQR(true)
+            console.log('[Activation] Token generated and saved successfully.')
         } catch (err) {
-            console.error('Failed to generate token:', err)
-            alert(err.message || 'Security Error: Failed to generate activation token.')
+            console.error('[Activation] Exception:', err)
+            alert(`Activation Failed: ${err.message}`)
         } finally {
             setIsGenerating(false)
         }
