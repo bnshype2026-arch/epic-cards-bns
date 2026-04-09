@@ -42,20 +42,37 @@ export const AdminActivate = () => {
         setError(null)
         setResult(null)
 
+        const input = serialToVerify.trim()
+        const isTokenFormat = input.startsWith('ACT-')
+
         try {
-            const { data, error: fetchError } = await supabase
+            let query = supabase
                 .from('card_instances')
                 .select(`
-          *,
-          user_profiles!card_instances_owner_id_fkey(email),
-          card_templates(name, rarity, image_url, description)
-        `)
-                .eq('serial_number', serialToVerify.trim())
-                .single()
+                    *,
+                    user_profiles!card_instances_owner_id_fkey(email, id),
+                    card_templates(name, rarity, image_url, description)
+                `)
+
+            if (isTokenFormat) {
+                query = query.eq('activation_token', input)
+            } else {
+                query = query.eq('serial_number', input)
+            }
+
+            const { data, error: fetchError } = await query.single()
 
             if (fetchError) {
-                if (fetchError.code === 'PGRST116') throw new Error('Card not found')
+                if (fetchError.code === 'PGRST116') throw new Error(isTokenFormat ? 'Invalid or Expired Activation Token' : 'Card not found')
                 throw fetchError
+            }
+
+            // If it was found via token, verify expiry
+            if (isTokenFormat) {
+                const expiry = new Date(data.activation_token_expires_at)
+                if (expiry < new Date()) {
+                    throw new Error('This activation token has expired (15-minute limit). Please ask the user to generate a new one.')
+                }
             }
 
             setResult(data)
@@ -107,7 +124,9 @@ export const AdminActivate = () => {
                     activation_status: 'Activated',
                     activated_at: activatedTime,
                     activated_invoice_number: invoiceNumber.trim(),
-                    activated_by: user.id
+                    activated_by: user.id,
+                    activation_token: null,
+                    activation_token_expires_at: null
                 })
                 .eq('id', result.id)
 

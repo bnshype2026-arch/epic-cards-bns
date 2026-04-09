@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { X, Trash2, CalendarClock } from 'lucide-react'
+import { X, Trash2, CalendarClock, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react'
 import { FallbackImage } from './FallbackImage'
 import QRCode from 'react-qr-code'
+import { supabase } from '../lib/supabase'
 
-// Helper component for countdown
-const Countdown = ({ expiryDate }) => {
+// Helper component for countup/countdown
+const Countdown = ({ expiryDate, onExpire, isToken = false }) => {
     const [timeLeft, setTimeLeft] = useState('')
     const [isExpired, setIsExpired] = useState(false)
 
@@ -15,6 +16,7 @@ const Countdown = ({ expiryDate }) => {
             if (difference <= 0) {
                 setIsExpired(true)
                 setTimeLeft('EXPIRED')
+                if (onExpire) onExpire()
                 return
             }
 
@@ -23,27 +25,95 @@ const Countdown = ({ expiryDate }) => {
             const minutes = Math.floor((difference / 1000 / 60) % 60)
             const seconds = Math.floor((difference / 1000) % 60)
 
-            setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`)
+            if (isToken) {
+                // For activation tokens, just show minutes and seconds
+                setTimeLeft(`${minutes}:${seconds.toString().padStart(2, '0')}`)
+            } else {
+                setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`)
+            }
         }
 
         calculateTimeLeft()
         const timer = setInterval(calculateTimeLeft, 1000)
         return () => clearInterval(timer)
-    }, [expiryDate])
+    }, [expiryDate, onExpire, isToken])
 
     return (
-        <span className={`font-mono text-sm ${isExpired ? 'text-red-500 font-bold' : 'text-primary font-bold'}`}>
+        <span className={`font-mono ${isToken ? 'text-2xl tracking-tighter' : 'text-sm'} ${isExpired ? 'text-red-500 font-bold' : 'text-primary font-bold'}`}>
             {timeLeft}
         </span>
     )
 }
 
 export const CardInspectModal = ({ instance, onClose, onDelete }) => {
-    const [showBarcode, setShowBarcode] = useState(false)
+    const [showQR, setShowQR] = useState(false)
+    const [isGenerating, setIsGenerating] = useState(false)
+    const [token, setToken] = useState(instance.activation_token)
+    const [tokenExpiry, setTokenExpiry] = useState(instance.activation_token_expires_at)
+    
     const template = instance.card_templates
     const isActualExpired = new Date(instance.expiry_date) <= new Date() || instance.activation_status === 'Expired'
     const isActivated = instance.activation_status === 'Activated'
     const isDisabled = instance.activation_status === 'Disabled'
+
+    // Refresh token state if instance changes
+    useEffect(() => {
+        setToken(instance.activation_token)
+        setTokenExpiry(instance.activation_token_expires_at)
+    }, [instance])
+
+    const isTokenValid = token && tokenExpiry && new Date(tokenExpiry) > new Date()
+
+    const generateActivationToken = async () => {
+        setIsGenerating(true)
+        try {
+            // Simple random token generator
+            const newToken = `ACT-${Math.random().toString(36).substring(2, 8).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+            const newExpiry = new Date(Date.now() + 15 * 60 * 1000).toISOString() // 15 minutes
+
+            const { error } = await supabase
+                .from('card_instances')
+                .update({
+                    activation_token: newToken,
+                    activation_token_expires_at: newExpiry
+                })
+                .eq('id', instance.id)
+
+            if (error) throw error
+
+            setToken(newToken)
+            setTokenExpiry(newExpiry)
+            setShowQR(true)
+        } catch (err) {
+            console.error('Failed to generate token:', err)
+            alert('Security Error: Failed to generate activation token.')
+        } finally {
+            setIsGenerating(false)
+        }
+    }
+
+    const cancelActivation = async () => {
+        setIsGenerating(true)
+        try {
+            const { error } = await supabase
+                .from('card_instances')
+                .update({
+                    activation_token: null,
+                    activation_token_expires_at: null
+                })
+                .eq('id', instance.id)
+
+            if (error) throw error
+
+            setToken(null)
+            setTokenExpiry(null)
+            setShowQR(false)
+        } catch (err) {
+            console.error('Failed to cancel token:', err)
+        } finally {
+            setIsGenerating(false)
+        }
+    }
 
     // Calculate the effective lifespan (accounts for clamping by active_to)
     const effectiveExpiryDays = (instance.opened_at && instance.expiry_date)
@@ -69,33 +139,7 @@ export const CardInspectModal = ({ instance, onClose, onDelete }) => {
                 onClick={e => e.stopPropagation()}
             >
                 <button
-                    onClick={() => {
-                        const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
-                        const osc = audioCtx.createOscillator()
-                        const filter = audioCtx.createBiquadFilter()
-                        const gainNode = audioCtx.createGain()
-
-                        // White noise approximation for a swoosh string
-                        osc.type = 'sawtooth'
-                        osc.frequency.setValueAtTime(200, audioCtx.currentTime)
-                        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3)
-
-                        filter.type = 'lowpass'
-                        filter.frequency.setValueAtTime(2000, audioCtx.currentTime)
-                        filter.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3)
-
-                        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime)
-                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3)
-
-                        osc.connect(filter)
-                        filter.connect(gainNode)
-                        gainNode.connect(audioCtx.destination)
-
-                        osc.start()
-                        osc.stop(audioCtx.currentTime + 0.3)
-
-                        onClose()
-                    }}
+                    onClick={onClose}
                     className="absolute top-4 right-4 z-50 bg-black/50 hover:bg-black/80 p-2 rounded-full backdrop-blur transition-colors"
                 >
                     <X size={20} className="text-white" />
@@ -205,67 +249,97 @@ export const CardInspectModal = ({ instance, onClose, onDelete }) => {
                         </div>
                     </div>
 
-                    {/* S/N Footer & Delete Actions */}
+                    {/* S/N Footer & Actions */}
                     <div className="mt-1 flex justify-between items-end gap-2 shrink-0">
                         <div className="flex gap-2">
-                            <button
-                                onClick={() => {
-                                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
-                                    const oscillator = audioCtx.createOscillator()
-                                    const gainNode = audioCtx.createGain()
-                                    oscillator.type = 'triangle'
-                                    oscillator.frequency.setValueAtTime(showBarcode ? 600 : 400, audioCtx.currentTime)
-                                    oscillator.frequency.exponentialRampToValueAtTime(showBarcode ? 400 : 600, audioCtx.currentTime + 0.1)
-                                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime)
-                                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1)
-                                    oscillator.connect(gainNode)
-                                    gainNode.connect(audioCtx.destination)
-                                    oscillator.start()
-                                    oscillator.stop(audioCtx.currentTime + 0.1)
-                                    setShowBarcode(!showBarcode)
-                                }}
-                                className="bg-white/10 hover:bg-white/20 transition-colors text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded"
-                            >
-                                {showBarcode ? 'Hide QR' : 'Show QR'}
-                            </button>
-
+                            {(!isActualExpired && !isActivated && !isDisabled) && (
+                                <button
+                                    onClick={isTokenValid ? () => setShowQR(true) : generateActivationToken}
+                                    disabled={isGenerating}
+                                    className="bg-primary hover:brightness-110 transition-all text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg shadow-primary/20"
+                                >
+                                    {isGenerating ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={14} />}
+                                    {isTokenValid ? 'Show Activation' : 'Finalize Activation'}
+                                </button>
+                            )}
+                            
                             {(isActualExpired || isActivated || isDisabled) && (
                                 <button
                                     onClick={onDelete}
-                                    className="bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 hover:text-red-400 transition-colors text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded flex items-center gap-1"
+                                    className="bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 hover:text-red-400 transition-colors text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-lg flex items-center gap-1"
                                     title="Permanently Delete Card"
                                 >
-                                    <Trash2 size={12} /> Discard
+                                    <Trash2 size={14} /> Discard
                                 </button>
                             )}
                         </div>
 
-                        <div className="text-white font-mono text-[11px] tracking-widest bg-black/60 px-2 py-1 rounded-sm border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.4)]">
-                            S/N: {instance.serial_number}
+                        <div className="text-white/40 font-mono text-[9px] tracking-widest uppercase">
+                            S/N: {instance.serial_number.substring(0, 8)}...
                         </div>
                     </div>
 
-                    {/* QR Code Overlay */}
-                    {showBarcode && (
-                        <div className="absolute inset-0 bg-black/90 backdrop-blur-md z-50 flex flex-col items-center justify-center p-6 animate-fade-in">
-                            <h3 className="text-white font-bold tracking-widest uppercase mb-8 drop-shadow-md">Activation QR</h3>
-                            <div className="bg-white p-4 rounded-xl shadow-[0_0_50px_rgba(255,255,255,0.2)] mb-8">
-                                <QRCode
-                                    value={instance.serial_number}
-                                    size={200}
-                                    bgColor="#ffffff"
-                                    fgColor="#000000"
-                                />
+                    {/* SECURE QR CODE OVERLAY */}
+                    {(showQR || isTokenValid) && showQR && (
+                        <div className="absolute inset-0 bg-surface/95 backdrop-blur-xl z-[100] flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in-95 duration-300">
+                            <div className="absolute top-4 right-4 flex gap-2">
+                                <button
+                                    onClick={cancelActivation}
+                                    className="bg-red-500/10 hover:bg-red-500/20 text-red-500 p-2 rounded-full border border-red-500/20 transition-all"
+                                    title="Abort Activation"
+                                >
+                                    <X size={20} />
+                                </button>
                             </div>
-                            <p className="text-gray-300 font-mono text-sm mb-8 bg-white/10 px-4 py-2 rounded-lg border border-white/20">
-                                {instance.serial_number}
-                            </p>
+
+                            <div className="text-center mb-8">
+                                <h3 className="text-white font-black tracking-[0.2em] uppercase text-lg mb-2">Secure Activation</h3>
+                                <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest leading-relaxed max-w-[200px] mx-auto">
+                                    Present this encrypted neural token to the administrator.
+                                </p>
+                            </div>
+
+                            <div className="relative group">
+                                <div className="absolute -inset-4 bg-primary/20 rounded-[2.5rem] blur-2xl group-hover:bg-primary/30 transition-all"></div>
+                                <div className="bg-white p-5 rounded-[2rem] shadow-2xl relative">
+                                    <QRCode
+                                        value={token}
+                                        size={180}
+                                        bgColor="#ffffff"
+                                        fgColor="#000000"
+                                        level="H"
+                                    />
+                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
+                                        <ShieldCheck size={80} className="text-black" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-10 flex flex-col items-center gap-2">
+                                <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">Code Expires In</span>
+                                <div className="bg-black/40 px-6 py-2 rounded-2xl border border-white/5">
+                                    <Countdown 
+                                        expiryDate={tokenExpiry} 
+                                        isToken={true} 
+                                        onExpire={() => {
+                                            setToken(null)
+                                            setShowQR(false)
+                                        }} 
+                                    />
+                                </div>
+                            </div>
+
                             <button
-                                onClick={() => setShowBarcode(false)}
-                                className="bg-primary hover:bg-white text-white hover:text-black font-bold px-8 py-3 rounded-xl transition-colors tracking-wide"
+                                onClick={() => setShowQR(false)}
+                                className="mt-8 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white transition-colors border-b border-white/10 pb-1"
                             >
-                                Close QR
+                                Back to Card
                             </button>
+
+                            <div className="mt-12 flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5">
+                                <AlertCircle size={14} className="text-primary animate-pulse" />
+                                <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Single-use encrypted session</span>
+                            </div>
                         </div>
                     )}
                 </div>
