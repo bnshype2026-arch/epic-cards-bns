@@ -286,72 +286,71 @@ export const CardInspectModal = ({ instance, onClose, onDelete, onUpdate }) => {
                             S/N: {instance.serial_number.substring(0, 8)}...
                         </div>
                     </div>
-
-                    {/* SECURE QR CODE OVERLAY */}
-                    {(showQR || isTokenValid) && showQR && (
-                        <div className="absolute inset-0 bg-surface/95 backdrop-blur-xl z-[100] flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in-95 duration-300">
-                            <div className="absolute top-4 right-4 flex gap-2">
-                                <button
-                                    onClick={cancelActivation}
-                                    className="bg-red-500/10 hover:bg-red-500/20 text-red-500 p-2 rounded-full border border-red-500/20 transition-all"
-                                    title="Abort Activation"
-                                >
-                                    <X size={20} />
-                                </button>
-                            </div>
-
-                            <div className="text-center mb-8">
-                                <h3 className="text-white font-black tracking-[0.2em] uppercase text-lg mb-2">Secure Activation</h3>
-                                <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest leading-relaxed max-w-[200px] mx-auto">
-                                    Present this encrypted neural token to the administrator.
-                                </p>
-                            </div>
-
-                            <div className="relative group">
-                                <div className="absolute -inset-4 bg-primary/20 rounded-[2.5rem] blur-2xl group-hover:bg-primary/30 transition-all"></div>
-                                <div className="bg-white p-5 rounded-[2rem] shadow-2xl relative">
-                                    <QRCode
-                                        value={token}
-                                        size={180}
-                                        bgColor="#ffffff"
-                                        fgColor="#000000"
-                                        level="H"
-                                    />
-                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
-                                        <ShieldCheck size={80} className="text-black" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="mt-10 flex flex-col items-center gap-2">
-                                <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">Code Expires In</span>
-                                <div className="bg-black/40 px-6 py-2 rounded-2xl border border-white/5">
-                                    <Countdown 
-                                        expiryDate={tokenExpiry} 
-                                        isToken={true} 
-                                        onExpire={() => {
-                                            setToken(null)
-                                            setShowQR(false)
-                                        }} 
-                                    />
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={() => setShowQR(false)}
-                                className="mt-8 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white transition-colors border-b border-white/10 pb-1"
-                            >
-                                Back to Card
-                            </button>
-
-                            <div className="mt-12 flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5">
-                                <AlertCircle size={14} className="text-primary animate-pulse" />
-                                <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Single-use encrypted session</span>
-                            </div>
-                        </div>
-                    )}
                 </div>
 
+                {/* SECURE QR CODE OVERLAY - Moved to root level of card for full coverage */}
+                {showQR && (
+                    <div className="absolute inset-0 bg-surface/95 backdrop-blur-xl z-[100] flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in-95 duration-300">
+                        <div className="absolute top-4 right-4 flex gap-2">
+                            <button
+                                onClick={cancelActivation}
+                                className="bg-red-500/10 hover:bg-red-500/20 text-red-500 p-2 rounded-full border border-red-500/20 transition-all"
+                                title="Abort Activation"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="text-center mb-8">
+                            <h3 className="text-white font-black tracking-[0.2em] uppercase text-lg mb-2">Secure Activation</h3>
+                            <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest leading-relaxed max-w-[200px] mx-auto">
+                                Present this encrypted neural token to the administrator.
+                            </p>
+                        </div>
+
+                        <div className="relative group">
+                            <div className="absolute -inset-4 bg-primary/20 rounded-[2.5rem] blur-2xl group-hover:bg-primary/30 transition-all"></div>
+                            <div className="bg-white p-5 rounded-[2rem] shadow-2xl relative">
+                                <QRCode
+                                    value={token || ""}
+                                    size={180}
+                                    bgColor="#ffffff"
+                                    fgColor="#000000"
+                                    level="H"
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
+                                    <ShieldCheck size={80} className="text-black" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-10 flex flex-col items-center gap-2">
+                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">Code Expires In</span>
+                            <div className="bg-black/40 px-6 py-2 rounded-2xl border border-white/5">
+                                <Countdown 
+                                    expiryDate={tokenExpiry} 
+                                    isToken={true} 
+                                    onExpire={() => {
+                                        setToken(null)
+                                        setShowQR(false)
+                                    }} 
+                                />
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => setShowQR(false)}
+                            className="mt-8 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white transition-colors border-b border-white/10 pb-1"
+                        >
+                            Back to Card
+                        </button>
+
+                        <div className="mt-12 flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5">
+                            <AlertCircle size={14} className="text-primary animate-pulse" />
+                            <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Single-use encrypted session</span>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )
