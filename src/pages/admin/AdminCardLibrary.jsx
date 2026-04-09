@@ -147,79 +147,83 @@ export const AdminCardLibrary = () => {
     }
 
     return (
-        <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="max-w-7xl mx-auto pb-12">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4 sm:gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold flex items-center gap-3">
+                    <h1 className="text-2xl sm:text-3xl font-black flex items-center gap-3 uppercase tracking-tight">
                         <Database className="text-primary" />
                         Master Card Library
                     </h1>
-                    <p className="text-gray-400 mt-2">View all distributed cards. Manage statuses and void active items.</p>
+                    <p className="text-xs sm:text-sm text-gray-500 font-medium">View all distributed cards. Manage statuses and void active items.</p>
                 </div>
 
-                <div className="bg-surface/50 border border-white/5 rounded-xl px-4 py-2 flex items-center gap-3">
-                    <span className="text-sm text-gray-400 font-bold uppercase tracking-wider">Viewing</span>
-                    <span className="text-2xl font-mono text-white">{cards.length}</span>
+                <div className="bg-surface/80 backdrop-blur border border-white/5 rounded-2xl overflow-hidden w-full sm:w-auto shadow-xl flex">
+                    <div className="flex-1 sm:flex-none px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 bg-black/20">
+                        <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest leading-none">Total Distributed</span>
+                        <span className="text-xl sm:text-2xl font-black text-white leading-none">{cards.length.toLocaleString()}</span>
+                    </div>
                 </div>
             </div>
 
             {/* Filter and Search Bar */}
-            <div className="bg-surface/80 border border-white/10 rounded-2xl p-4 mb-6 flex flex-col md:flex-row gap-4">
+            <div className="bg-surface/80 backdrop-blur border border-white/10 rounded-2xl p-4 mb-6 flex flex-col lg:flex-row gap-4 shadow-lg">
                 <form onSubmit={handleSearch} className="flex-1 relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                     <input
                         type="text"
-                        placeholder="Search by exact Serial Number..."
+                        placeholder="Search Serial Number..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors"
+                        className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:border-primary transition-colors text-sm sm:text-base"
                     />
                 </form>
 
-                <button
-                    onClick={() => {
-                        const exportData = cards.map(card => {
-                            const expiryStr = card.expiry_date ? new Date(card.expiry_date).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) : ''
-                            const activatedStr = card.activated_at ? new Date(card.activated_at).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) : ''
+                <div className="flex flex-col sm:flex-row gap-4 shrink-0">
+                    <div className="flex items-center gap-3 flex-1 sm:flex-none bg-black/20 px-3 py-1 rounded-xl border border-white/5">
+                        <Filter className="text-gray-500" size={18} />
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="bg-transparent border-none rounded-xl py-2 text-sm text-white focus:outline-none cursor-pointer flex-1"
+                        >
+                            <option value="All">All Statuses</option>
+                            <option value="Inactive">Active (Unused)</option>
+                            <option value="Activated">Activated (Used)</option>
+                            <option value="Expired">Expired</option>
+                            <option value="Disabled">Disabled</option>
+                        </select>
+                    </div>
 
-                            return {
-                                'Status':
-                                    card.activation_status === 'Disabled' ? 'Disabled' :
-                                        card.activation_status === 'Activated' ? 'Activated' :
-                                            (card.activation_status === 'Inactive' && card.expiry_date && new Date(card.expiry_date) < new Date()) ? 'Expired' :
-                                                (card.activation_status === 'Inactive' ? 'Active' : card.activation_status),
-                                'Card Name': card.card_templates?.name,
-                                'Rarity': card.card_templates?.rarity,
-                                'Discount (%)': card.locked_discount_percentage || card.card_templates?.discount_percentage || 0,
-                                'Serial Number': card.serial_number,
-                                'Owner Email': card.user_profiles?.email || 'N/A',
-                                'Acquired At (WIB)': card.opened_at ? new Date(card.opened_at).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) : '',
-                                'Expiry Date (WIB)': expiryStr,
-                                'Activated At (WIB)': activatedStr,
-                                'Invoice Ref': card.activated_invoice_number || ''
-                            }
-                        })
-                        exportToExcel(exportData, 'Master_Card_Library_Export')
-                    }}
-                    className="px-6 py-2.5 bg-green-500/10 hover:bg-green-500/20 text-green-400 font-bold border border-green-500/20 rounded-xl flex items-center gap-2 transition-colors shrink-0"
-                >
-                    <Download size={18} />
-                    Export Page
-                </button>
+                    <button
+                        onClick={() => {
+                            const exportData = cards.map(card => {
+                                const expiryStr = card.expiry_date ? new Date(card.expiry_date).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) : ''
+                                const activatedStr = card.activated_at ? new Date(card.activated_at).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) : ''
 
-                <div className="flex items-center gap-3">
-                    <Filter className="text-gray-500" size={18} />
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        className="bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-primary transition-colors cursor-pointer"
+                                return {
+                                    'Status':
+                                        card.activation_status === 'Disabled' ? 'Disabled' :
+                                            card.activation_status === 'Activated' ? 'Activated' :
+                                                (card.activation_status === 'Inactive' && card.expiry_date && new Date(card.expiry_date) < new Date()) ? 'Expired' :
+                                                    (card.activation_status === 'Inactive' ? 'Active' : card.activation_status),
+                                    'Card Name': card.card_templates?.name,
+                                    'Rarity': card.card_templates?.rarity,
+                                    'Discount (%)': card.locked_discount_percentage || card.card_templates?.discount_percentage || 0,
+                                    'Serial Number': card.serial_number,
+                                    'Owner Email': card.user_profiles?.email || 'N/A',
+                                    'Acquired At (WIB)': card.opened_at ? new Date(card.opened_at).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) : '',
+                                    'Expiry Date (WIB)': expiryStr,
+                                    'Activated At (WIB)': activatedStr,
+                                    'Invoice Ref': card.activated_invoice_number || ''
+                                }
+                            })
+                            exportToExcel(exportData, 'Master_Card_Library_Export')
+                        }}
+                        className="px-6 py-3 bg-green-500/10 hover:bg-green-500/20 text-green-400 font-black uppercase tracking-tighter border border-green-500/20 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95"
                     >
-                        <option value="All">All Statuses</option>
-                        <option value="Inactive">Active (Unused)</option>
-                        <option value="Activated">Activated (Used)</option>
-                        <option value="Expired">Expired</option>
-                        <option value="Disabled">Disabled</option>
-                    </select>
+                        <Download size={18} />
+                        <span className="text-sm">Export</span>
+                    </button>
                 </div>
             </div>
 
@@ -230,17 +234,18 @@ export const AdminCardLibrary = () => {
             )}
 
             <div className="bg-surface border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
-                <div className="overflow-x-auto">
+                {/* Desktop View Table */}
+                <div className="hidden lg:block overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[1000px]">
                         <thead>
-                            <tr className="bg-black/40 border-b border-white/10 text-xs uppercase tracking-wider text-gray-400">
+                            <tr className="bg-black/40 border-b border-white/10 text-xs uppercase tracking-wider text-gray-400 font-black">
                                 <th className="p-4 font-semibold w-48">Card Details</th>
                                 <th className="p-4 font-semibold w-32">Serial</th>
                                 <th className="p-4 font-semibold w-32">Status</th>
                                 <th className="p-4 font-semibold">Owner Email</th>
                                 <th className="p-4 font-semibold cursor-pointer hover:bg-white/5 transition-colors group" onClick={toggleSort}>
                                     <div className="flex items-center gap-2">
-                                        Acquired Date (WIB)
+                                        Acquired Date
                                         <ArrowUpDown size={14} className="opacity-50 group-hover:opacity-100 transition-opacity" />
                                     </div>
                                 </th>
@@ -260,27 +265,25 @@ export const AdminCardLibrary = () => {
                                 </tr>
                             ) : cards.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" className="p-12 text-center text-gray-500">
-                                        No cards found matching your criteria.
+                                    <td colSpan="7" className="p-12 text-center text-gray-500 font-medium">
+                                        No cards found matching criteria.
                                     </td>
                                 </tr>
                             ) : (
                                 cards.map((card) => {
-                                    // Determine real-time visual status in case it hasn't hard-updated to 'Expired' in DB
                                     let displayStatus = card.activation_status
                                     const isRealTimeExpired = card.activation_status === 'Inactive' && card.expiry_date && new Date(card.expiry_date) < new Date()
                                     if (isRealTimeExpired) displayStatus = 'Expired'
 
                                     return (
                                         <tr key={card.id} className="hover:bg-white/5 transition-colors">
-                                            {/* Card Details Column */}
                                             <td className="p-4 align-top">
                                                 <div className="flex flex-col gap-1">
                                                     <span className="font-bold text-white max-w-[180px] truncate" title={card.card_templates?.name}>
                                                         {card.card_templates?.name}
                                                     </span>
                                                     <div className="flex items-center gap-2">
-                                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded bg-rarity-${card.card_templates?.rarity.toLowerCase()}/20 text-rarity-${card.card_templates?.rarity.toLowerCase()}`}>
+                                                        <span className={`text-[10px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded bg-rarity-${card.card_templates?.rarity.toLowerCase()}/20 text-rarity-${card.card_templates?.rarity.toLowerCase()}`}>
                                                             {card.card_templates?.rarity}
                                                         </span>
                                                         <span className="text-xs font-mono text-green-400">
@@ -290,18 +293,16 @@ export const AdminCardLibrary = () => {
                                                 </div>
                                             </td>
 
-                                            {/* Serial Column */}
                                             <td className="p-4 align-top whitespace-nowrap">
                                                 <span className="text-xs font-mono text-gray-300 bg-black/40 px-2 py-1 rounded flex items-center gap-1 w-fit border border-white/5">
                                                     <Hash size={12} className="text-gray-500" /> {card.serial_number}
                                                 </span>
                                             </td>
 
-                                            {/* Status Column */}
                                             <td className="p-4 align-top">
-                                                <span className={`text-xs font-bold px-2 py-1 rounded-md inline-flex items-center gap-1
+                                                <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md inline-flex items-center gap-1
                                                     ${displayStatus === 'Activated' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : ''}
-                                                    ${displayStatus === 'Inactive' ? 'bg-primary/10 text-primary border border-primary/20' : ''}
+                                                    ${displayStatus === 'Inactive' ? 'bg-primary/10 text-primary border border-primary/20 shadow-[0_0_8px_rgba(168,85,247,0.2)]' : ''}
                                                     ${displayStatus === 'Expired' ? 'bg-gray-500/10 text-gray-400 border border-gray-500/20' : ''}
                                                     ${displayStatus === 'Disabled' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : ''}
                                                 `}>
@@ -309,7 +310,6 @@ export const AdminCardLibrary = () => {
                                                 </span>
                                             </td>
 
-                                            {/* Owner Column */}
                                             <td className="p-4 align-top">
                                                 <div className="flex items-center gap-2 text-sm text-gray-300 max-w-[180px]" title={card.user_profiles?.email || 'Unknown'}>
                                                     <User size={14} className="text-gray-500 shrink-0" />
@@ -317,72 +317,56 @@ export const AdminCardLibrary = () => {
                                                 </div>
                                             </td>
 
-                                            {/* Acquired Date Column */}
                                             <td className="p-4 align-top whitespace-nowrap">
                                                 <div className="flex flex-col text-sm text-gray-300">
                                                     <span className="font-medium text-white">
-                                                        {card.opened_at ? new Date(card.opened_at).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }) : 'N/A'}
+                                                        {card.opened_at ? new Date(card.opened_at).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }) : <span className="text-gray-600 italic">N/A</span>}
                                                     </span>
                                                     {card.opened_at && (
-                                                        <span className="text-xs text-gray-500">
-                                                            {new Date(card.opened_at).toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' })}
+                                                        <span className="text-[10px] text-gray-500 flex items-center gap-1 font-bold">
+                                                            <Clock size={10} /> {new Date(card.opened_at).toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' })}
                                                         </span>
                                                     )}
                                                 </div>
                                             </td>
 
-                                            {/* Validity & Invoice Column */}
                                             <td className="p-4 align-top">
                                                 <div className="flex flex-col gap-1.5 text-xs">
                                                     {displayStatus === 'Disabled' ? (
-                                                        <div className="text-red-500 font-bold tracking-wider">VOIDED</div>
+                                                        <div className="text-red-500 font-extrabold tracking-widest uppercase text-[10px]">VOIDED</div>
                                                     ) : displayStatus === 'Activated' ? (
                                                         <>
-                                                            <div className="text-green-400">
-                                                                Activated: {card.activated_at ? new Date(card.activated_at).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }) : 'Yes'}
+                                                            <div className="text-green-400 font-bold">
+                                                                Activated: {card.activated_at ? new Date(card.activated_at).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }) : 'YES'}
                                                             </div>
                                                             {card.activated_invoice_number && (
-                                                                <div className="font-mono bg-black/40 px-1.5 py-0.5 rounded w-fit text-gray-300 border border-white/5">
-                                                                    Inv: {card.activated_invoice_number}
+                                                                <div className="font-mono bg-black/40 px-2 py-0.5 rounded w-fit text-gray-300 border border-white/5 text-[10px]">
+                                                                    REF: {card.activated_invoice_number}
                                                                 </div>
                                                             )}
                                                         </>
                                                     ) : card.expiry_date ? (
-                                                        <div className={isRealTimeExpired ? 'text-gray-500 line-through' : 'text-primary'}>
+                                                        <div className={isRealTimeExpired ? 'text-gray-500 line-through' : 'text-primary font-bold'}>
                                                             Expires: {new Date(card.expiry_date).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' })}
                                                         </div>
                                                     ) : (
-                                                        <div className="text-gray-500">Lifetime Validity</div>
-                                                    )}
-
-                                                    {/* Promotional Bounds (if any) */}
-                                                    {(card.active_from || card.active_to) && (
-                                                        <div className="text-[10px] text-gray-500 leading-tight mt-1 border-t border-white/5 pt-1">
-                                                            Promo Context: <br />
-                                                            {card.active_from ? new Date(card.active_from).toLocaleDateString() : 'Start'} → {card.active_to ? new Date(card.active_to).toLocaleDateString() : 'End'}
-                                                        </div>
+                                                        <div className="text-gray-500 italic">Lifetime Validity</div>
                                                     )}
                                                 </div>
                                             </td>
 
-                                            {/* Actions Column */}
                                             <td className="p-4 align-top text-right">
-                                                {/* Only allow disabling if it's currently Inactive(Usable) or even already Activated to void the invoice claim */}
                                                 {card.activation_status !== 'Disabled' ? (
                                                     <button
                                                         onClick={() => handleDisableCard(card.id, card.serial_number)}
                                                         disabled={disablingId === card.id}
-                                                        className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 transition-colors text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 transition-all text-xs font-black uppercase tracking-tighter inline-flex items-center gap-1.5 disabled:opacity-50"
                                                     >
-                                                        {disablingId === card.id ? (
-                                                            <Loader2 size={14} className="animate-spin" />
-                                                        ) : (
-                                                            <Ban size={14} />
-                                                        )}
-                                                        Disable
+                                                        {disablingId === card.id ? <Loader2 size={12} className="animate-spin" /> : <Ban size={12} />}
+                                                        Void
                                                     </button>
                                                 ) : (
-                                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Void</span>
+                                                    <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">Voided</span>
                                                 )}
                                             </td>
                                         </tr>
@@ -391,6 +375,105 @@ export const AdminCardLibrary = () => {
                             )}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Mobile View Cards */}
+                <div className="lg:hidden divide-y divide-white/5">
+                    {loading && cards.length === 0 ? (
+                        <div className="p-12 text-center text-gray-500">
+                            <Loader2 className="animate-spin text-primary mx-auto mb-3" size={32} />
+                            <p>Loading library...</p>
+                        </div>
+                    ) : cards.length === 0 ? (
+                        <div className="p-12 text-center text-gray-500 font-medium">
+                            No cards found matching criteria.
+                        </div>
+                    ) : (
+                        cards.map((card) => {
+                            let displayStatus = card.activation_status
+                            const isRealTimeExpired = card.activation_status === 'Inactive' && card.expiry_date && new Date(card.expiry_date) < new Date()
+                            if (isRealTimeExpired) displayStatus = 'Expired'
+
+                            return (
+                                <div key={card.id} className="p-4 flex flex-col gap-4">
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="font-black text-white text-lg leading-tight uppercase tracking-tighter">
+                                                {card.card_templates?.name}
+                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <span className={`text-[10px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded bg-rarity-${card.card_templates?.rarity.toLowerCase()}/20 text-rarity-${card.card_templates?.rarity.toLowerCase()}`}>
+                                                    {card.card_templates?.rarity}
+                                                </span>
+                                                <span className="text-[10px] font-mono text-green-400 bg-green-400/10 px-1 rounded">
+                                                    -{card.locked_discount_percentage || card.card_templates?.discount_percentage || 0}%
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="text-right flex flex-col items-end gap-1">
+                                            <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md
+                                                ${displayStatus === 'Activated' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : ''}
+                                                ${displayStatus === 'Inactive' ? 'bg-primary/10 text-primary border border-primary/20 shadow-[0_0_8px_rgba(168,85,247,0.2)]' : ''}
+                                                ${displayStatus === 'Expired' ? 'bg-gray-500/10 text-gray-400 border border-gray-500/20' : ''}
+                                                ${displayStatus === 'Disabled' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : ''}
+                                            `}>
+                                                {displayStatus === 'Inactive' ? 'Active' : displayStatus}
+                                            </span>
+                                            <span className="text-[9px] font-mono text-gray-500 tracking-tighter">{card.serial_number}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="bg-black/30 p-2 rounded-xl border border-white/5">
+                                            <span className="block text-[8px] text-gray-500 font-black uppercase tracking-widest mb-1">Owner Email</span>
+                                            <div className="flex items-center gap-1.5">
+                                                <User size={10} className="text-gray-500 shrink-0" />
+                                                <span className="text-[10px] text-white truncate font-medium">
+                                                    {card.user_profiles?.email || 'Unknown'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="bg-black/30 p-2 rounded-xl border border-white/5">
+                                            <span className="block text-[8px] text-gray-500 font-black uppercase tracking-widest mb-1">Acquired On</span>
+                                            <div className="flex items-center gap-1.5">
+                                                <Clock size={10} className="text-gray-500 shrink-0" />
+                                                <span className="text-[10px] text-white font-medium">
+                                                    {card.opened_at ? new Date(card.opened_at).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }) : 'Legacy'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white/5 p-3 rounded-xl border border-white/5 flex justify-between items-center">
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className="text-[8px] text-gray-500 font-black uppercase tracking-widest">Validity Details</span>
+                                            {displayStatus === 'Activated' ? (
+                                                <span className="text-[10px] text-green-400 font-bold uppercase tracking-tight">
+                                                    Activated via {card.activated_invoice_number || 'Legacy'}
+                                                </span>
+                                            ) : card.expiry_date ? (
+                                                <span className={`text-[10px] font-bold ${isRealTimeExpired ? 'text-red-400' : 'text-primary'}`}>
+                                                    Expires {new Date(card.expiry_date).toLocaleDateString()}
+                                                </span>
+                                            ) : (
+                                                <span className="text-[10px] text-gray-400 font-bold">Lifetime Validity</span>
+                                            )}
+                                        </div>
+                                        
+                                        {card.activation_status !== 'Disabled' && (
+                                            <button
+                                                onClick={() => handleDisableCard(card.id, card.serial_number)}
+                                                disabled={disablingId === card.id}
+                                                className="px-4 py-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 transition-all text-[10px] font-black uppercase tracking-widest"
+                                            >
+                                                {disablingId === card.id ? '...' : 'Void Card'}
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            )
+                        })
+                    )}
                 </div>
             </div>
 

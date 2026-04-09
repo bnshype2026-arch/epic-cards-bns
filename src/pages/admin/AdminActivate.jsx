@@ -136,41 +136,45 @@ export const AdminActivate = () => {
     }
 
     return (
-        <div className="max-w-2xl mx-auto">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                <h1 className="text-3xl font-bold">Activation Panel</h1>
-                <div className="bg-primary/20 border border-primary/30 text-primary px-5 py-2 rounded-xl text-center shadow-inner">
-                    <p className="text-[10px] uppercase tracking-wider font-bold opacity-80 mb-0.5">Remaining Card Pool</p>
-                    <p className="text-2xl font-black leading-none">{availableCards.toLocaleString()}</p>
+        <div className="max-w-2xl mx-auto pb-12">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
+                <div>
+                    <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">Activation Panel</h1>
+                    <p className="text-xs sm:text-sm text-gray-500 font-medium">Verify and activate card instances</p>
+                </div>
+                <div className="bg-primary/20 border border-primary/30 text-primary px-4 sm:px-5 py-2 rounded-2xl sm:rounded-xl text-center shadow-inner w-full sm:w-auto">
+                    <p className="text-[10px] uppercase tracking-tighter font-black opacity-80 mb-0.5">Remaining Card Pool</p>
+                    <p className="text-xl sm:text-2xl font-black leading-none tracking-tight">{availableCards.toLocaleString()}</p>
                 </div>
             </div>
 
             {/* Search Form */}
-            <div className="bg-surface border border-white/5 p-6 rounded-2xl mb-8">
-                <form onSubmit={handleVerify} className="flex gap-4">
+            <div className="bg-surface/80 backdrop-blur border border-white/5 p-4 sm:p-6 rounded-2xl mb-6 sm:mb-8 shadow-xl">
+                <form onSubmit={handleVerify} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                     <div className="flex-1 relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                         <input
                             type="text"
-                            placeholder="Enter Serial Number (e.g., BNS-XXXX-YYYY)"
+                            placeholder="Enter Serial Number"
                             required
-                            className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-12 py-4 text-white focus:outline-none focus:border-primary text-lg transition-colors placeholder-gray-600"
+                            className="w-full bg-black/40 border border-white/10 rounded-xl pl-11 pr-11 py-3.5 sm:py-4 text-white focus:outline-none focus:border-primary text-base sm:text-lg transition-colors placeholder-gray-600"
                             value={serial}
                             onChange={e => setSerial(e.target.value)}
                         />
                         <button
                             type="button"
                             onClick={() => setShowScanner(true)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-primary transition-colors"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-primary transition-colors bg-white/5 rounded-lg border border-white/5"
                             title="Scan QR Code"
                         >
-                            <Camera size={24} />
+                            <Camera size={20} className="sm:hidden" />
+                            <Camera size={24} className="hidden sm:block" />
                         </button>
                     </div>
                     <button
                         type="submit"
                         disabled={loading}
-                        className="bg-primary hover:bg-blue-600 text-white font-bold px-8 rounded-xl transition-colors disabled:opacity-50"
+                        className="bg-primary hover:bg-blue-600 text-white font-black uppercase tracking-tighter px-8 py-3.5 sm:py-0 rounded-xl transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)] disabled:opacity-50 active:scale-[0.98]"
                     >
                         Verify
                     </button>
@@ -198,32 +202,32 @@ export const AdminActivate = () => {
                         </div>
                     </div>
 
-                    <div className="p-6 md:p-8 flex flex-col md:flex-row gap-8 items-center md:items-start">
-                        <div className="w-40 h-60 shrink-0">
+                    <div className="p-4 sm:p-6 md:p-8 flex flex-col items-center gap-6 sm:gap-8">
+                        <div className="w-48 h-72 sm:w-40 sm:h-60 shrink-0">
                             <FallbackImage
                                 src={result.card_templates?.image_url}
                                 alt={result.card_templates?.name}
-                                className="w-full h-full object-cover rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.5)] border border-white/10"
+                                className="w-full h-full object-cover rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.6)] border border-white/10"
                             />
                         </div>
 
-                        <div className="flex-1 space-y-4 w-full">
-                            <div>
-                                <p className="text-sm text-gray-400">Card Name</p>
-                                <p className="text-2xl font-bold">{result.card_templates?.name}</p>
-                                <p className={`text-sm font-bold text-rarity-${result.card_templates?.rarity.toLowerCase()}`}>
+                        <div className="flex-1 space-y-5 sm:space-y-4 w-full">
+                            <div className="text-center sm:text-left">
+                                <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mb-1">Card Details</p>
+                                <p className="text-2xl sm:text-3xl font-black text-white leading-tight">{result.card_templates?.name}</p>
+                                <p className={`mt-1 text-sm font-black uppercase tracking-widest text-rarity-${result.card_templates?.rarity.toLowerCase()}`}>
                                     {result.card_templates?.rarity} • {result.locked_discount_percentage}% OFF
                                 </p>
                             </div>
 
-                            <div className="bg-white/5 border border-white/10 rounded-lg p-3 shadow-inner">
-                                <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Ability</p>
+                            <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4 shadow-inner">
+                                <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1 opacity-70">Ability Description</p>
                                 <p className="text-gray-300 text-sm leading-relaxed italic font-serif">
                                     {result.card_templates?.description || "A mysterious artifact of unknown power."}
                                 </p>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <InfoBox label="Serial Number" value={result.serial_number} />
                                 <InfoBox label="Owner Email" value={result.user_profiles?.email || 'Unclaimed'} />
                                 <InfoBox label="Opened At" value={result.opened_at ? new Date(result.opened_at).toLocaleDateString() : 'N/A'} />
@@ -233,9 +237,9 @@ export const AdminActivate = () => {
                                     failed={new Date(result.expiry_date) < new Date()}
                                 />
                                 {(result.active_from || result.active_to) && (
-                                    <div className="col-span-2">
+                                    <div className="sm:col-span-2">
                                         <InfoBox
-                                            label="Active Promotional Period"
+                                            label="Promotion Period"
                                             value={`${result.active_from ? new Date(result.active_from).toLocaleDateString() : 'Now'} - ${result.active_to ? new Date(result.active_to).toLocaleDateString() : 'Forever'}`}
                                             failed={
                                                 (result.active_from && new Date() < new Date(result.active_from)) ||
@@ -245,9 +249,9 @@ export const AdminActivate = () => {
                                     </div>
                                 )}
                                 {result.activation_status === 'Activated' && (
-                                    <div className="col-span-2 grid grid-cols-2 gap-4">
-                                        <InfoBox label="Activated On" value={result.activated_at ? new Date(result.activated_at).toLocaleString() : 'N/A'} />
-                                        <InfoBox label="Invoice Ref" value={result.activated_invoice_number || 'N/A'} />
+                                    <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                        <InfoBox label="Activation Date" value={result.activated_at ? new Date(result.activated_at).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) : 'N/A'} />
+                                        <InfoBox label="Invoice Reference" value={result.activated_invoice_number || 'Legacy'} />
                                     </div>
                                 )}
                             </div>
@@ -293,9 +297,9 @@ export const AdminActivate = () => {
 }
 
 const InfoBox = ({ label, value, failed }) => (
-    <div className={`p-3 rounded-lg border ${failed ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-black/30 border-white/5'}`}>
-        <p className="text-xs text-gray-400 mb-1">{label}</p>
-        <p className="font-mono text-sm truncate" title={value}>{value}</p>
+    <div className={`p-3 rounded-xl border ${failed ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-black/40 border-white/5 shadow-inner'}`}>
+        <p className="text-[10px] text-gray-500 mb-1 font-black uppercase tracking-widest opacity-70">{label}</p>
+        <p className="font-bold text-sm truncate uppercase tracking-tight" title={value}>{value}</p>
     </div>
 )
 

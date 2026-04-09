@@ -179,69 +179,86 @@ export const AdminTemplates = () => {
     }
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-8">
+        <div className="max-w-7xl mx-auto pb-12">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 sm:gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold">Card Templates</h1>
-                    <p className="text-gray-400 mt-1">Manage designs and generate new drop pools</p>
+                    <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">Card Templates</h1>
+                    <p className="text-xs sm:text-sm text-gray-500 font-medium tracking-tight">Manage designs and generate new drop pools</p>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-3 w-full sm:w-auto">
                     <button
                         onClick={handleClearAllAvailable}
-                        className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-4 py-2.5 rounded-lg flex items-center gap-2 transition-colors font-bold"
-                        title="Delete all unassigned instances from the active lootbox pool"
+                        className="flex-1 sm:flex-none bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-4 py-3 rounded-xl flex items-center justify-center gap-2 transition-all font-black uppercase tracking-tighter text-xs"
+                        title="Delete all unassigned instances"
                     >
-                        <Trash2 size={18} />
+                        <Trash2 size={16} />
                         Clear Supply
                     </button>
                     <button
                         onClick={() => showForm ? cancelForm() : setShowForm(true)}
-                        className="bg-primary hover:bg-blue-600 px-4 py-2.5 rounded-lg flex items-center gap-2 transition-colors font-bold"
+                        className="flex-1 sm:flex-none bg-primary hover:bg-blue-600 px-4 py-3 rounded-xl flex items-center justify-center gap-2 transition-all font-black uppercase tracking-tighter text-xs shadow-[0_0_20px_rgba(37,99,235,0.3)] text-white"
                     >
-                        {showForm ? <X size={20} /> : <Plus size={20} />}
-                        {showForm ? 'Cancel' : 'New Template'}
+                        {showForm ? <X size={18} /> : <Plus size={18} />}
+                        {showForm ? 'Cancel' : 'New Design'}
                     </button>
                 </div>
             </div>
 
             {/* Probability Configuration Panel */}
-            <div className="bg-surface/50 border border-white/5 p-6 rounded-2xl mb-8">
-                <div className="flex items-center gap-2 mb-4">
-                    <h2 className="text-xl font-bold">Lootbox Drop Rates</h2>
-                    <span className="text-xs bg-white/10 px-2 py-1 rounded text-gray-400">Global weights for unboxing</span>
+            <div className="bg-surface/80 backdrop-blur border border-white/10 p-5 sm:p-6 rounded-3xl mb-8 shadow-2xl overflow-hidden relative group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:bg-primary/10 transition-colors" />
+                
+                <div className="flex items-center gap-2 mb-6">
+                    <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                        <Info size={18} />
+                    </div>
+                    <div>
+                        <h2 className="text-lg font-black uppercase tracking-tighter">Lootbox Drop Rates</h2>
+                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Global pool probability control</p>
+                    </div>
                 </div>
+
                 {loadingProbs ? (
-                    <div className="text-gray-400 text-sm">Loading drop rates...</div>
+                    <div className="text-gray-500 text-sm animate-pulse font-medium">Calibrating drop rates...</div>
                 ) : probabilities.length === 0 ? (
-                    <div className="text-orange-400 text-sm flex items-start gap-2 bg-orange-500/10 p-3 rounded-lg border border-orange-500/20">
-                        <Info size={16} className="mt-0.5 shrink-0" />
-                        <span>The `rarity_probabilities` table is missing or empty. Please run the provided SQL migration in your Supabase SQL Editor.</span>
+                    <div className="text-orange-400 text-xs sm:text-sm flex items-start gap-3 bg-orange-500/10 p-4 rounded-2xl border border-orange-500/20">
+                        <Info size={18} className="shrink-0" />
+                        <span>The probability mapping table is uninitialized. Run migrations to enable pool control.</span>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-5 gap-3">
                         {probabilities.map(prob => {
                             const totalWeight = probabilities.reduce((sum, p) => sum + p.weight, 0);
                             const percentage = totalWeight > 0 ? Math.round((prob.weight / totalWeight) * 100) : 0;
                             return (
-                                <div key={prob.rarity} className="bg-black/40 border border-white/10 rounded-lg p-3 flex flex-col gap-2">
+                                <div key={prob.rarity} className="bg-black/40 border border-white/5 rounded-2xl p-4 flex flex-col gap-3 relative transition-all hover:border-white/10 group/item">
                                     <div className="flex justify-between items-center">
-                                        <span className={`text-sm font-bold text-rarity-${prob.rarity.toLowerCase()}`}>{prob.rarity}</span>
-                                        <span className="text-xs text-gray-400 font-mono">{percentage}%</span>
+                                        <span className={`text-xs font-black uppercase tracking-widest text-rarity-${prob.rarity.toLowerCase()}`}>
+                                            {prob.rarity}
+                                        </span>
+                                        <span className="text-[10px] text-gray-400 font-black bg-white/5 px-1.5 py-0.5 rounded-md">
+                                            {percentage}%
+                                        </span>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xs text-gray-500">Weight:</span>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-[8px] text-gray-500 font-black uppercase tracking-widest">WGT</span>
                                         <input
                                             type="number"
                                             min="0"
-                                            className="w-full bg-[#1e1e24] border border-white/20 rounded px-2 py-1 text-white focus:outline-none focus:border-primary text-sm"
+                                            className="w-full bg-black/40 border-none rounded-xl px-0 py-1 text-white focus:ring-0 text-xl font-black transition-all group-hover/item:text-primary"
                                             defaultValue={prob.weight}
                                             onBlur={(e) => {
                                                 if (Number(e.target.value) !== prob.weight) {
                                                     handleUpdateProbability(prob.rarity, e.target.value)
                                                 }
                                             }}
-                                            title="Higher weights drop more frequently"
+                                        />
+                                    </div>
+                                    <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                                        <div 
+                                            className={`h-full bg-rarity-${prob.rarity.toLowerCase()}`}
+                                            style={{ width: `${percentage}%` }}
                                         />
                                     </div>
                                 </div>
@@ -252,134 +269,180 @@ export const AdminTemplates = () => {
             </div>
 
             {showForm && (
-                <form onSubmit={handleSubmit} className="bg-surface border border-white/5 p-6 rounded-2xl mb-8 space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm text-gray-400 mb-1">Name</label>
-                            <input required type="text" className="w-full bg-[#1e1e24] border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                <form onSubmit={handleSubmit} className="bg-surface/90 backdrop-blur border border-white/10 p-6 rounded-3xl mb-8 space-y-6 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
+                    <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
+                        <Edit2 size={18} className="text-primary" />
+                        {editingTemplateId ? 'Revise Template' : 'Foundation Design'}
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Card Identity</label>
+                            <input required type="text" placeholder="Design Name" className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-all text-sm font-medium" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
                         </div>
-                        <div>
-                            <label className="block text-sm text-gray-400 mb-1 flex items-center justify-between">
-                                Image URL
-                                <span className="text-xs text-primary flex items-center gap-1" title="Google Drive links must have 'Anyone with link' viewer permissions. Regular raw image URLs work best.">
-                                    <Info size={12} /> Tips
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 flex justify-between">
+                                Visual Resource
+                                <span className="text-primary flex items-center gap-1 opacity-70">
+                                    <Info size={10} /> Tips
                                 </span>
                             </label>
-                            <input required type="url" placeholder="https://..." className="w-full bg-[#1e1e24] border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50" value={formData.image_url} onChange={e => setFormData({ ...formData, image_url: e.target.value })} />
+                            <input required type="url" placeholder="https://image-url.jpg" className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-all text-sm font-mono tracking-tight" value={formData.image_url} onChange={e => setFormData({ ...formData, image_url: e.target.value })} />
                         </div>
-                        <div>
-                            <label className="block text-sm text-gray-400 mb-1">Rarity</label>
-                            <select className="w-full bg-[#1e1e24] border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50" value={formData.rarity} onChange={e => setFormData({ ...formData, rarity: e.target.value })}>
-                                <option value="Common" className="bg-[#1e1e24] text-white">Common</option>
-                                <option value="Rare" className="bg-[#1e1e24] text-white">Rare</option>
-                                <option value="Epic" className="bg-[#1e1e24] text-white">Epic</option>
-                                <option value="Legendary" className="bg-[#1e1e24] text-white">Legendary</option>
-                                <option value="Mystic" className="bg-[#1e1e24] text-white">Mystic</option>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Tier Classification</label>
+                            <select className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-all text-sm font-bold" value={formData.rarity} onChange={e => setFormData({ ...formData, rarity: e.target.value })}>
+                                <option value="Common">Common</option>
+                                <option value="Rare">Rare</option>
+                                <option value="Epic">Epic</option>
+                                <option value="Legendary">Legendary</option>
+                                <option value="Mystic">Mystic</option>
                             </select>
                         </div>
-                        <div>
-                            <label className="block text-sm text-gray-400 mb-1">Discount %</label>
-                            <input required type="number" min="1" max="100" className="w-full bg-[#1e1e24] border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50" value={formData.discount_percentage} onChange={e => setFormData({ ...formData, discount_percentage: Number(e.target.value) })} />
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Discount Factor (%)</label>
+                            <input required type="number" min="1" max="100" className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-all text-sm font-black" value={formData.discount_percentage} onChange={e => setFormData({ ...formData, discount_percentage: Number(e.target.value) })} />
                         </div>
-                        <div>
-                            <label className="block text-sm text-gray-400 mb-1">Expiry (Days)</label>
-                            <input required type="number" min="1" className="w-full bg-[#1e1e24] border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50" value={formData.expiry_days} onChange={e => setFormData({ ...formData, expiry_days: Number(e.target.value) })} />
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Validity Period (Days)</label>
+                            <input required type="number" min="1" className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-all text-sm font-black" value={formData.expiry_days} onChange={e => setFormData({ ...formData, expiry_days: Number(e.target.value) })} />
                         </div>
-                        <div>
-                            <label className="block text-sm text-gray-400 mb-1">Active From (Optional)</label>
-                            <input type="date" className="w-full bg-[#1e1e24] border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50" value={formData.active_from} onChange={e => setFormData({ ...formData, active_from: e.target.value || null })} />
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 text-center block">Active From</label>
+                                <input type="date" className="w-full bg-black/40 border border-white/10 rounded-2xl px-3 py-3 text-white focus:outline-none focus:border-primary transition-all text-xs font-bold appearance-none text-center" value={formData.active_from} onChange={e => setFormData({ ...formData, active_from: e.target.value || null })} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 text-center block">Active To</label>
+                                <input type="date" className="w-full bg-black/40 border border-white/10 rounded-2xl px-3 py-3 text-white focus:outline-none focus:border-primary transition-all text-xs font-bold appearance-none text-center" value={formData.active_to} onChange={e => setFormData({ ...formData, active_to: e.target.value || null })} />
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm text-gray-400 mb-1">Active To (Optional)</label>
-                            <input type="date" className="w-full bg-[#1e1e24] border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50" value={formData.active_to} onChange={e => setFormData({ ...formData, active_to: e.target.value || null })} />
-                        </div>
-                        <div className="md:col-span-2">
-                            <label className="block text-sm text-gray-400 mb-1">Description (Card Ability/Lore)</label>
+                        <div className="md:col-span-2 space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 text-center block md:text-left">Ability & Lore Narrative</label>
                             <textarea
                                 required
                                 rows="3"
-                                className="w-full bg-[#1e1e24] border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50 resize-y"
+                                className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-all text-xs font-medium resize-none leading-relaxed"
                                 value={formData.description}
                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                placeholder="E.g., When revealed to the store clerk, this card grants you X..."
+                                placeholder="E.g., Upon activation, this card grants a legendary discount..."
                             />
                         </div>
-                        <div className="flex items-center gap-4 mt-2">
-                            <label className="flex items-center gap-2 text-sm">
-                                <input type="checkbox" checked={formData.has_gift} onChange={e => setFormData({ ...formData, has_gift: e.target.checked })} />
-                                Has Free Gift
+                        <div className="md:col-span-2 flex flex-wrap gap-4 sm:gap-8 bg-black/20 p-4 rounded-2xl border border-white/5">
+                            <label className="flex items-center gap-3 text-xs font-black uppercase tracking-widest cursor-pointer group">
+                                <div className={`w-5 h-5 rounded-md border border-white/20 flex items-center justify-center transition-all ${formData.has_gift ? 'bg-primary border-primary' : 'bg-black/40'}`}>
+                                    {formData.has_gift && <Plus size={14} className="text-white" />}
+                                </div>
+                                <input type="checkbox" className="hidden" checked={formData.has_gift} onChange={e => setFormData({ ...formData, has_gift: e.target.checked })} />
+                                Free Gift Attachment
                             </label>
-                            <label className="flex items-center gap-2 text-sm">
-                                <input type="checkbox" checked={formData.has_task_gift} onChange={e => setFormData({ ...formData, has_task_gift: e.target.checked })} />
-                                Has Task Gift
+                            <label className="flex items-center gap-3 text-xs font-black uppercase tracking-widest cursor-pointer group">
+                                <div className={`w-5 h-5 rounded-md border border-white/20 flex items-center justify-center transition-all ${formData.has_task_gift ? 'bg-primary border-primary' : 'bg-black/40'}`}>
+                                    {formData.has_task_gift && <Plus size={14} className="text-white" />}
+                                </div>
+                                <input type="checkbox" className="hidden" checked={formData.has_task_gift} onChange={e => setFormData({ ...formData, has_task_gift: e.target.checked })} />
+                                Task Completion Bonus
                             </label>
                         </div>
                     </div>
-                    <button type="submit" className="bg-primary px-6 py-2 rounded-lg font-medium">
-                        {editingTemplateId ? 'Update Template' : 'Create Template'}
-                    </button>
+                    
+                    <div className="flex gap-4 pt-2">
+                        <button type="submit" className="flex-1 bg-primary hover:brightness-110 px-6 py-4 rounded-2xl font-black uppercase tracking-widest transition-all active:scale-[0.98] shadow-lg shadow-primary/20 text-white">
+                            {editingTemplateId ? 'Commit Update' : 'Initialize Design'}
+                        </button>
+                        <button type="button" onClick={cancelForm} className="bg-white/5 hover:bg-white/10 px-8 py-4 rounded-2xl font-black uppercase tracking-widest transition-all text-gray-400">
+                            Abort
+                        </button>
+                    </div>
                 </form>
             )}
 
             {loading ? (
-                <div>Loading templates...</div>
+                <div className="flex flex-col items-center justify-center p-20 gap-4">
+                    <Plus className="animate-spin text-primary" size={40} />
+                    <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Synchronizing Archive...</p>
+                </div>
             ) : (
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-6">
                     {templates.map(template => (
-                        <div key={template.id} className="bg-surface border border-white/5 rounded-xl p-4 flex flex-col md:flex-row gap-6 items-center">
-                            <FallbackImage src={template.image_url} alt={template.name} className="w-24 h-36 rounded shadow-lg" />
-                            <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <h3 className="text-xl font-bold">{template.name}</h3>
-                                    <span className={`text-xs px-2 py-1 rounded font-bold text-rarity-${template.rarity.toLowerCase()} bg-white/5`}>
-                                        {template.rarity}
-                                    </span>
-                                </div>
-                                <div className="text-sm text-gray-400 grid grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-4">
-                                    <p>Discount: <span className="text-white">{template.discount_percentage}%</span></p>
-                                    <p>Expiry: <span className="text-white">{template.expiry_days} Days</span></p>
-                                    <p>Active: <span className="text-white">
-                                        {template.active_from || template.active_to ? (
-                                            `${template.active_from ? new Date(template.active_from).toLocaleDateString() : 'Now'} - ${template.active_to ? new Date(template.active_to).toLocaleDateString() : 'Forever'}`
-                                        ) : 'Anytime'}
-                                    </span></p>
-                                    <p>Gift: <span className="text-white">{template.has_gift ? 'Yes' : 'No'}</span></p>
-                                    <p>Task: <span className="text-white">{template.has_task_gift ? 'Yes' : 'No'}</span></p>
+                        <div key={template.id} className="bg-surface/60 backdrop-blur-sm border border-white/5 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row gap-6 items-center sm:items-stretch group hover:bg-surface/80 transition-all hover:border-white/10 shadow-lg">
+                            <div className="relative shrink-0 group/img">
+                                <FallbackImage src={template.image_url} alt={template.name} className="w-32 h-48 sm:w-28 sm:h-40 rounded-2xl shadow-2xl object-cover border border-white/10 group-hover/img:scale-105 transition-transform duration-500" />
+                                <div className={`absolute top-2 left-2 px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest bg-rarity-${template.rarity.toLowerCase()}/20 text-rarity-${template.rarity.toLowerCase()} backdrop-blur-md border border-white/20 pointer-events-none`}>
+                                    {template.rarity}
                                 </div>
                             </div>
 
-                            {generatingForId === template.id ? (
-                                <div className="flex flex-col gap-2 min-w-[140px]">
-                                    <input
-                                        type="number"
-                                        className="w-32 bg-[#1e1e24] border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50"
-                                        value={generateCount}
-                                        onChange={(e) => setGenerateCount(Number(e.target.value))}
-                                        min="1" max="1000"
-                                    />
-                                    <div className="flex gap-2">
-                                        <button onClick={() => handleGenerateInstances(template.id)} className="bg-green-600 px-3 py-1 rounded text-sm">Confirm</button>
-                                        <button onClick={() => setGeneratingForId(null)} className="bg-gray-700 px-3 py-1 rounded text-sm">Cancel</button>
+                            <div className="flex-1 flex flex-col justify-center text-center sm:text-left">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
+                                    <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-white">{template.name}</h3>
+                                    <div className="flex items-center justify-center sm:justify-start gap-3">
+                                        <span className="text-xs font-black text-green-400 bg-green-400/10 px-2 py-1 rounded-lg border border-green-400/10">
+                                            -{template.discount_percentage}% OFF
+                                        </span>
                                     </div>
                                 </div>
-                            ) : (
-                                <div className="flex flex-col gap-2 min-w-[140px]">
-                                    <button
-                                        onClick={() => setGeneratingForId(template.id)}
-                                        className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm transition-colors text-left"
-                                    >
-                                        Generate pool
-                                    </button>
-                                    <div className="flex gap-2">
-                                        <button onClick={() => startEdit(template)} className="flex-1 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center justify-center gap-1">
-                                            <Edit2 size={14} /> Edit
-                                        </button>
-                                        <button onClick={() => handleDelete(template.id)} className="flex-1 bg-red-500/20 text-red-400 hover:bg-red-500/30 px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center justify-center gap-1">
-                                            <Trash2 size={14} /> Del
-                                        </button>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-6">
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">Validity Span</span>
+                                        <span className="text-xs text-white font-bold">{template.expiry_days} Days</span>
+                                    </div>
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">Active Window</span>
+                                        <span className="text-xs text-white font-bold truncate max-w-[150px]">
+                                            {template.active_from || template.active_to ? (
+                                                `${template.active_from ? new Date(template.active_from).toLocaleDateString() : 'Now'} - ${template.active_to ? new Date(template.active_to).toLocaleDateString() : '∞'}`
+                                            ) : 'Global Access'}
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-col gap-0.5 col-span-2 md:col-span-1">
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">Privileges</span>
+                                        <div className="flex gap-2 justify-center sm:justify-start">
+                                            {template.has_gift && <span className="text-[9px] font-black bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full border border-blue-500/10 uppercase">Gift</span>}
+                                            {template.has_task_gift && <span className="text-[9px] font-black bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded-full border border-purple-500/10 uppercase">Task</span>}
+                                            {!template.has_gift && !template.has_task_gift && <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Standard</span>}
+                                        </div>
                                     </div>
                                 </div>
-                            )}
+                            </div>
+
+                            <div className="w-full sm:w-auto flex flex-col justify-center gap-3 pt-2 sm:pt-0">
+                                {generatingForId === template.id ? (
+                                    <div className="bg-black/40 p-4 rounded-2xl border border-white/10 flex flex-col gap-3 animate-in fade-in zoom-in-95 duration-200">
+                                        <div className="space-y-1">
+                                            <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 px-1">Quantity to Mint</span>
+                                            <input
+                                                type="number"
+                                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm font-black text-center focus:border-primary transition-all"
+                                                value={generateCount}
+                                                onChange={(e) => setGenerateCount(Number(e.target.value))}
+                                                min="1" max="1000"
+                                            />
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button onClick={() => handleGenerateInstances(template.id)} className="flex-1 bg-green-500 text-white font-black uppercase tracking-widest text-[10px] py-2 rounded-xl active:scale-95 transition-all">Go</button>
+                                            <button onClick={() => setGeneratingForId(null)} className="flex-1 bg-white/5 text-gray-400 font-black uppercase tracking-widest text-[10px] py-2 rounded-xl">No</button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col gap-3 min-w-[160px]">
+                                        <button
+                                            onClick={() => setGeneratingForId(template.id)}
+                                            className="w-full bg-white text-black font-black uppercase tracking-widest text-[10px] py-3 rounded-2xl flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all shadow-lg active:scale-95"
+                                        >
+                                            <Database size={14} /> Mint Pool
+                                        </button>
+                                        <div className="flex gap-2">
+                                            <button onClick={() => startEdit(template)} className="flex-1 bg-white/5 hover:bg-white/10 text-gray-400 p-2.5 rounded-xl transition-all flex items-center justify-center group/btn">
+                                                <Edit2 size={16} className="group-hover/btn:text-primary transition-colors" />
+                                            </button>
+                                            <button onClick={() => handleDelete(template.id)} className="flex-1 bg-white/5 hover:bg-white/10 text-gray-400 p-2.5 rounded-xl transition-all flex items-center justify-center group/btn">
+                                                <Trash2 size={16} className="group-hover/btn:text-red-500 transition-colors" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>

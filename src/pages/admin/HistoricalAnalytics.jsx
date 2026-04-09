@@ -14,23 +14,24 @@ const DashboardSection = ({ title, icon, children, defaultOpen = true }) => {
     const [isOpen, setIsOpen] = useState(defaultOpen)
 
     return (
-        <div className="bg-surface/50 border border-white/5 rounded-2xl mb-6 overflow-hidden">
+        <div className="bg-surface/30 backdrop-blur-sm border border-white/5 rounded-[2rem] mb-6 overflow-hidden shadow-2xl transition-all duration-500">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between p-5 hover:bg-white/[0.02] transition-colors"
-                title={isOpen ? "Collapse section" : "Expand section"}
+                className="w-full flex items-center justify-between p-6 sm:p-8 hover:bg-white/[0.03] transition-all group"
             >
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/5 rounded-lg text-primary">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-primary/10 rounded-2xl text-primary shadow-inner border border-primary/5 group-hover:scale-110 transition-transform">
                         {icon}
                     </div>
-                    <h2 className="text-xl font-bold">{title}</h2>
+                    <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tighter text-white/90">{title}</h2>
                 </div>
-                {isOpen ? <ChevronUp className="text-gray-400" /> : <ChevronDown className="text-gray-400" />}
+                <div className={`p-2 rounded-full bg-white/5 text-gray-400 group-hover:bg-primary/20 group-hover:text-primary transition-all ${isOpen ? 'rotate-180' : ''}`}>
+                    <ChevronDown size={20} />
+                </div>
             </button>
 
             {isOpen && (
-                <div className="p-5 pt-0 border-t border-white/5">
+                <div className="p-6 sm:p-8 pt-0 border-t border-white/5 animate-fade-in">
                     {children}
                 </div>
             )}
@@ -40,21 +41,20 @@ const DashboardSection = ({ title, icon, children, defaultOpen = true }) => {
 
 // Helper component for KPI Cards
 const KPICard = ({ title, value, subtext, highlight = false, alert = false, tooltip }) => (
-    <div className={`p-4 rounded-xl border relative group ${highlight ? 'bg-primary/10 border-primary/20' : alert ? 'bg-red-500/10 border-red-500/20' : 'bg-black/40 border-white/10'}`}>
-        <div className="flex justify-between items-start mb-2">
-            <p className="text-sm text-gray-400">{title}</p>
+    <div className={`p-4 sm:p-5 rounded-2xl border relative group transition-all duration-300 ${highlight ? 'bg-primary/10 border-primary/20 shadow-[0_0_20px_rgba(var(--primary-rgb),0.05)]' : alert ? 'bg-red-500/10 border-red-500/20 shadow-[0_0_20px_rgba(239,68,68,0.05)]' : 'bg-surface/40 backdrop-blur border-white/5 shadow-xl'}`}>
+        <div className="flex justify-between items-start mb-2 sm:mb-4">
+            <p className="text-[10px] sm:text-xs text-gray-400 font-black uppercase tracking-widest">{title}</p>
             {tooltip && (
                 <div className="relative flex items-center">
                     <Info size={14} className="text-gray-500 cursor-help hover:text-white transition-colors" />
-                    <div className="absolute bottom-full right-0 mb-2 w-48 bg-gray-800 text-xs text-gray-200 p-2 rounded shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 pointer-events-none">
+                    <div className="absolute bottom-full right-0 mb-2 w-48 bg-gray-900/95 backdrop-blur border border-white/10 text-[10px] text-gray-300 p-3 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
                         {tooltip}
-                        <div className="absolute top-full right-1.5 border-4 border-transparent border-t-gray-800"></div>
                     </div>
                 </div>
             )}
         </div>
-        <p className={`text-3xl font-bold ${highlight ? 'text-primary' : alert ? 'text-red-400' : 'text-white'}`}>{value}</p>
-        {subtext && <p className="text-xs text-gray-500 mt-2">{subtext}</p>}
+        <p className={`text-2xl sm:text-4xl font-black tracking-tight ${highlight ? 'text-primary' : alert ? 'text-red-400' : 'text-white'}`}>{value}</p>
+        {subtext && <p className="text-[10px] sm:text-xs text-gray-500 mt-2 font-medium">{subtext}</p>}
     </div>
 )
 
@@ -260,39 +260,42 @@ export const HistoricalAnalytics = () => {
     }
 
     return (
-        <div className="pb-24 lg:pb-8 max-w-7xl mx-auto">
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">
+        <div className="pb-24 lg:pb-8 max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="mb-8 p-1 sm:p-0">
+                <h1 className="text-2xl sm:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-400 to-blue-400 uppercase tracking-tighter">
                     Historical Analytics
                 </h1>
-                <p className="text-gray-400 mt-2">Filter and analyze past system performance by date range.</p>
+                <p className="text-xs sm:text-sm text-gray-500 font-medium tracking-tight mt-1">Audit and optimize system performance across custom timelines.</p>
             </div>
 
             {/* Date Range Selector Panel */}
-            <div className="bg-surface/80 backdrop-blur-md border border-white/10 rounded-2xl p-6 mb-8 shadow-xl">
-                <div className="flex flex-col md:flex-row gap-6 items-end">
-
-                    <div className="flex-1 w-full flex flex-col sm:flex-row gap-4">
-                        <div className="flex-1">
-                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                <CalendarIcon size={14} /> Start Date
+            <div className="bg-surface/80 backdrop-blur-xl border border-white/10 rounded-3xl p-5 sm:p-8 mb-8 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity pointer-events-none">
+                    <CalendarIcon size={80} className="rotate-12" />
+                </div>
+                
+                <div className="flex flex-col lg:flex-row gap-6 items-stretch lg:items-end relative z-10">
+                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <ChevronDown size={12} className="text-primary" /> Start Boundary
                             </label>
                             <input
                                 type="date"
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
-                                className="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+                                className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold shadow-inner"
                             />
                         </div>
-                        <div className="flex-1">
-                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                <CalendarIcon size={14} /> End Date
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <ChevronUp size={12} className="text-primary" /> End Boundary
                             </label>
                             <input
                                 type="date"
                                 value={endDate}
                                 onChange={(e) => setEndDate(e.target.value)}
-                                className="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+                                className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold shadow-inner"
                             />
                         </div>
                     </div>
@@ -300,10 +303,10 @@ export const HistoricalAnalytics = () => {
                     <button
                         onClick={fetchHistoricalData}
                         disabled={loading}
-                        className="w-full md:w-auto px-8 py-3 bg-primary text-black font-bold uppercase tracking-wider rounded-xl transition-all hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="lg:w-48 px-8 py-5 bg-gradient-to-br from-primary to-primary/80 text-black font-black uppercase tracking-widest rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg shadow-primary/20"
                     >
-                        {loading ? <RefreshCw size={18} className="animate-spin" /> : <Search size={18} />}
-                        {loading ? 'Applying...' : 'Apply Filter'}
+                        {loading ? <RefreshCw size={20} className="animate-spin" /> : <Search size={20} />}
+                        <span className="text-sm">Recount</span>
                     </button>
                 </div>
 
@@ -316,10 +319,10 @@ export const HistoricalAnalytics = () => {
 
             {/* Active Range Indicator */}
             {!loading && !error && (
-                <div className="mb-8 flex items-center gap-3">
-                    <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
-                    <span className="text-sm font-mono text-gray-300">
-                        Viewing Data From: <span className="text-white font-bold">{formatDateReadable(activeRange.start)}</span> → <span className="text-white font-bold">{formatDateReadable(activeRange.end)}</span>
+                <div className="mb-8 flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5">
+                    <div className="h-3 w-3 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.4)] animate-pulse"></div>
+                    <span className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">
+                        Timeline: <span className="text-white ml-2">{formatDateReadable(activeRange.start)}</span> <span className="mx-2 opacity-30">❯</span> <span className="text-white">{formatDateReadable(activeRange.end)}</span>
                     </span>
                 </div>
             )}
@@ -363,16 +366,18 @@ export const HistoricalAnalytics = () => {
 
                     {/* 4. RARITY DISTRIBUTION */}
                     <DashboardSection title="Card Unboxed Distribution" icon={<Crosshair />}>
-                        <p className="text-sm text-gray-400 mb-4">Distribution of card rarities drawn by users specifically during this date window.</p>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-6 font-medium tracking-tight">Distribution of card rarities drawn by users specifically during this date window.</p>
 
                         {stats.openedBoxesInRange === 0 ? (
-                            <div className="text-center py-8 text-gray-500 text-sm">No cards were opened during this date range.</div>
+                            <div className="text-center py-12 bg-black/20 rounded-3xl border border-dashed border-white/5 text-gray-600 font-black uppercase tracking-widest text-[10px]">
+                                No resonance detected in this timeline.
+                            </div>
                         ) : (
-                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
                                 {Object.entries(stats.rarityCounts).map(([rarity, count]) => (
-                                    <div key={rarity} className="p-4 bg-black/40 border border-white/5 rounded-xl flex flex-col items-center justify-center text-center">
-                                        <span className={`text-lg font-bold text-rarity-${rarity.toLowerCase()} mb-1`}>{rarity}</span>
-                                        <span className="text-2xl font-mono">{count}</span>
+                                    <div key={rarity} className="p-4 sm:p-6 bg-black/40 border border-white/5 rounded-3xl flex flex-col items-center justify-center text-center shadow-inner group hover:border-primary/20 transition-all">
+                                        <span className={`text-xs sm:text-sm font-black uppercase tracking-widest text-rarity-${rarity.toLowerCase()} mb-2 group-hover:scale-110 transition-transform`}>{rarity}</span>
+                                        <span className="text-2xl sm:text-3xl font-black text-white tabular-nums">{count}</span>
                                     </div>
                                 ))}
                             </div>
@@ -380,33 +385,39 @@ export const HistoricalAnalytics = () => {
                     </DashboardSection>
 
                     {/* 5. SYSTEM INTEGRITY */}
-                    <DashboardSection title="System Integrity (Range-Based)" icon={<ShieldAlert />}>
-                        <div className="mt-4">
-                            <div className="grid grid-cols-1 gap-4 mb-4">
-                                <KPICard
-                                    title="Failed Activations"
-                                    value={stats.failedActivations}
-                                    alert={stats.failedActivations > 0}
-                                    subtext="Blocks or errors during this range"
-                                    tooltip="The number of times an invalid activation attempt occurred within this time window."
-                                />
-                            </div>
+                    <DashboardSection title="System Integrity" icon={<ShieldAlert />}>
+                        <div className="mt-4 flex flex-col gap-6">
+                            <KPICard
+                                title="Anomalous Activations"
+                                value={stats.failedActivations}
+                                alert={stats.failedActivations > 0}
+                                subtext="Unauthorized or errored scans"
+                                tooltip="The number of times an invalid activation attempt occurred within this time window."
+                            />
 
                             {stats.recentErrors.length > 0 && (
-                                <div className="bg-black/40 rounded-xl border border-white/5 overflow-hidden">
-                                    <div className="px-4 py-2 bg-red-500/10 border-b border-white/5 text-xs text-red-400 font-bold uppercase tracking-wider">
-                                        Warnings Logged During Period
+                                <div className="bg-black/60 rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl">
+                                    <div className="px-6 py-4 bg-red-500/10 border-b border-white/5 text-[10px] text-red-400 font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                                        <AlertTriangle size={14} /> Critical Incident Log
                                     </div>
                                     <div className="divide-y divide-white/5">
                                         {stats.recentErrors.map((err, i) => (
-                                            <div key={i} className="p-3 text-sm flex justify-between items-start">
-                                                <div>
-                                                    <span className="text-red-400 font-mono mr-2">[{err.action}]</span>
-                                                    <span className="text-gray-400">{JSON.stringify(err.details)}</span>
+                                            <div key={i} className="p-4 sm:p-6 text-sm flex flex-col sm:flex-row justify-between items-start gap-3 hover:bg-white/[0.02] transition-colors">
+                                                <div className="flex-1 overflow-hidden">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className="text-red-400 font-black uppercase text-[10px] tracking-widest bg-red-500/10 px-2 py-0.5 rounded-md">
+                                                            {err.action}
+                                                        </span>
+                                                        <span className="text-[10px] text-gray-600 font-black uppercase tracking-widest">Incident Root</span>
+                                                    </div>
+                                                    <p className="text-gray-400 font-mono text-[10px] break-all leading-relaxed whitespace-pre-wrap">
+                                                        {JSON.stringify(err.details, null, 2)}
+                                                    </p>
                                                 </div>
-                                                <span className="text-xs text-gray-600 whitespace-nowrap ml-4">
+                                                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-600 shrink-0">
+                                                    <Clock size={12} />
                                                     {new Date(err.created_at).toLocaleDateString()}
-                                                </span>
+                                                </div>
                                             </div>
                                         ))}
                                     </div>

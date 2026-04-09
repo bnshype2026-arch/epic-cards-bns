@@ -11,22 +11,22 @@ const DashboardSection = ({ title, icon, children, defaultOpen = true }) => {
     const [isOpen, setIsOpen] = useState(defaultOpen)
 
     return (
-        <div className="bg-surface/50 border border-white/5 rounded-2xl mb-6 overflow-hidden">
+        <div className="bg-surface/50 border border-white/5 rounded-2xl mb-4 sm:mb-6 overflow-hidden">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between p-5 hover:bg-white/[0.02] transition-colors"
+                className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-white/[0.02] transition-colors"
             >
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/5 rounded-lg text-primary">
-                        {icon}
+                    <div className="p-1.5 sm:p-2 bg-white/5 rounded-lg text-primary">
+                        {icon && typeof icon === 'object' ? { ...icon, props: { ...icon.props, size: 18 } } : icon}
                     </div>
-                    <h2 className="text-xl font-bold">{title}</h2>
+                    <h2 className="text-lg sm:text-xl font-bold">{title}</h2>
                 </div>
-                {isOpen ? <ChevronUp className="text-gray-400" /> : <ChevronDown className="text-gray-400" />}
+                {isOpen ? <ChevronUp className="text-gray-400" size={20} /> : <ChevronDown className="text-gray-400" size={20} />}
             </button>
 
             {isOpen && (
-                <div className="p-5 pt-0 border-t border-white/5">
+                <div className="p-4 sm:p-5 pt-0 border-t border-white/5">
                     {children}
                 </div>
             )}
@@ -36,21 +36,22 @@ const DashboardSection = ({ title, icon, children, defaultOpen = true }) => {
 
 // Helper component for KPI Cards
 const KPICard = ({ title, value, subtext, highlight = false, alert = false, tooltip }) => (
-    <div className={`p-4 rounded-xl border relative group ${highlight ? 'bg-primary/10 border-primary/20' : alert ? 'bg-red-500/10 border-red-500/20' : 'bg-black/40 border-white/10'}`}>
-        <div className="flex justify-between items-start mb-2">
-            <p className="text-sm text-gray-400">{title}</p>
+    <div className={`p-3 sm:p-4 rounded-xl border relative group ${highlight ? 'bg-primary/10 border-primary/20' : alert ? 'bg-red-500/10 border-red-500/20' : 'bg-black/40 border-white/10'}`}>
+        <div className="flex justify-between items-start mb-1 sm:mb-2">
+            <p className="text-[10px] sm:text-sm text-gray-400 font-medium uppercase tracking-wider">{title}</p>
             {tooltip && (
                 <div className="relative flex items-center">
-                    <Info size={14} className="text-gray-500 cursor-help hover:text-white transition-colors" />
-                    <div className="absolute bottom-full right-0 mb-2 w-48 bg-gray-800 text-xs text-gray-200 p-2 rounded shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 pointer-events-none">
+                    <Info size={12} className="text-gray-500 cursor-help hover:text-white transition-colors block sm:hidden" />
+                    <Info size={14} className="text-gray-500 cursor-help hover:text-white transition-colors hidden sm:block" />
+                    <div className="absolute bottom-full right-0 mb-2 w-48 bg-gray-800 text-[10px] sm:text-xs text-gray-200 p-2 rounded shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 pointer-events-none">
                         {tooltip}
                         <div className="absolute top-full right-1.5 border-4 border-transparent border-t-gray-800"></div>
                     </div>
                 </div>
             )}
         </div>
-        <p className={`text-3xl font-bold ${highlight ? 'text-primary' : alert ? 'text-red-400' : 'text-white'}`}>{value}</p>
-        {subtext && <p className="text-xs text-gray-500 mt-2">{subtext}</p>}
+        <p className={`text-xl sm:text-3xl font-black ${highlight ? 'text-primary' : alert ? 'text-red-400' : 'text-white'}`}>{value}</p>
+        {subtext && <p className="text-[9px] sm:text-xs text-gray-500 mt-1 sm:mt-2 leading-tight uppercase font-bold tracking-tighter opacity-80">{subtext}</p>}
     </div>
 )
 
@@ -260,11 +261,11 @@ export const AdminDashboard = () => {
 
     return (
         <div className="pb-24 lg:pb-8 max-w-7xl mx-auto">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">
+            <div className="mb-6 sm:mb-8">
+                <h1 className="text-2xl sm:text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500 uppercase tracking-tight">
                     Operational Dashboard
                 </h1>
-                <p className="text-gray-400 mt-2">Real-time system health and economy analysis</p>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2 font-medium">Real-time system health and economy analysis</p>
             </div>
 
             {/* 1. EXECUTIVE SNAPSHOT */}

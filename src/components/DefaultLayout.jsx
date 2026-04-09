@@ -14,14 +14,18 @@ export const DefaultLayout = ({ children }) => {
                 <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent truncate flex-1">
                     Epic Cards <span className="text-xs text-indigo-300 ml-1">by BNS</span>
                 </h1>
-                <div className="flex items-center gap-3">
-                    {!isStaff && (
+                <div className="flex items-center gap-2">
+                    {isStaff ? (
+                        <div className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-tighter shadow-sm ${isAdmin ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-green-500/20 text-green-400 border border-green-500/30'}`}>
+                            {isAdmin ? 'ADMIN' : 'STAFF'}
+                        </div>
+                    ) : (
                         <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
                             <Package size={14} className="text-primary" />
                             <span className="text-sm font-bold">{userProfile?.lootbox_balance || 0}</span>
                         </div>
                     )}
-                    <button onClick={signOut} className="p-2 hover:bg-white/10 rounded-lg transition-colors"><LogOut size={18} /></button>
+                    <button onClick={signOut} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400"><LogOut size={18} /></button>
                 </div>
             </div>
 
@@ -93,21 +97,21 @@ export const DefaultLayout = ({ children }) => {
 
             {/* Mobile Admin Navigation */}
             {isStaff && (
-                <div className="md:hidden flex overflow-x-auto gap-2 p-3 bg-surface/50 border-b border-white/10 hide-scrollbar shrink-0">
-                    {isAdmin && <NavLink to="/admin" currentPath={location.pathname}>Dashboard</NavLink>}
-                    {isAdmin && <NavLink to="/admin/templates" currentPath={location.pathname}>Templates</NavLink>}
-                    <NavLink to="/admin/grant" currentPath={location.pathname}>Grant</NavLink>
-                    <NavLink to="/admin/activate" currentPath={location.pathname}>Activate</NavLink>
-                    <NavLink to="/admin/activated" currentPath={location.pathname}>Ledger</NavLink>
-                    {isAdmin && <NavLink to="/admin/library" currentPath={location.pathname}>Library</NavLink>}
-                    {isAdmin && <NavLink to="/admin/analytics" currentPath={location.pathname}>Analytics</NavLink>}
-                    {isAdmin && <NavLink to="/admin/live-drops" currentPath={location.pathname}>Drops</NavLink>}
-                    <NavLink to="/admin/logs" currentPath={location.pathname}>Grants</NavLink>
+                <div className="md:hidden flex overflow-x-auto gap-2 p-3 bg-surface border-b border-white/10 hide-scrollbar shrink-0 sticky top-[61px] z-30 shadow-lg">
+                    {isAdmin && <MobileNavLink to="/admin" currentPath={location.pathname}>Dashboard</MobileNavLink>}
+                    {isAdmin && <MobileNavLink to="/admin/templates" currentPath={location.pathname}>Templates</MobileNavLink>}
+                    <MobileNavLink to="/admin/grant" currentPath={location.pathname}>Grant</MobileNavLink>
+                    <MobileNavLink to="/admin/activate" currentPath={location.pathname}>Activate</MobileNavLink>
+                    <MobileNavLink to="/admin/activated" currentPath={location.pathname}>Ledger</MobileNavLink>
+                    {isAdmin && <MobileNavLink to="/admin/library" currentPath={location.pathname}>Library</MobileNavLink>}
+                    {isAdmin && <MobileNavLink to="/admin/analytics" currentPath={location.pathname}>Analytics</MobileNavLink>}
+                    {isAdmin && <MobileNavLink to="/admin/live-drops" currentPath={location.pathname}>Drops</MobileNavLink>}
+                    <MobileNavLink to="/admin/logs" currentPath={location.pathname}>Grants</MobileNavLink>
                 </div>
             )}
 
             {/* Main Content */}
-            <main className="flex-1 overflow-y-auto relative h-[calc(100vh-60px)] md:h-screen">
+            <main className={`flex-1 overflow-y-auto relative ${isStaff ? 'h-[calc(100vh-115px)]' : 'h-[calc(100vh-61px)]'} md:h-screen`}>
                 <div className="p-4 md:p-8 max-w-7xl mx-auto">
                     {children}
                 </div>
@@ -149,6 +153,24 @@ const BottomNavLink = ({ to, icon, label, currentPath }) => {
         >
             <span className={`w-6 h-6 ${isActive ? 'drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]' : ''}`}>{icon}</span>
             <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
+        </Link>
+    )
+}
+
+const MobileNavLink = ({ to, children, currentPath }) => {
+    const isActive = to === '/admin'
+        ? currentPath === to
+        : currentPath === to || currentPath?.startsWith(`${to}/`)
+
+    return (
+        <Link
+            to={to}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${isActive
+                ? 'bg-primary text-white border-primary shadow-[0_0_10px_rgba(168,85,247,0.3)]'
+                : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10'
+                }`}
+        >
+            {children}
         </Link>
     )
 }

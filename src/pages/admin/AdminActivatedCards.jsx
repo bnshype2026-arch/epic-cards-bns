@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { FileText, Clock, Hash, User, Loader2, ArrowUpDown, Download } from 'lucide-react'
+import { FileText, Clock, Hash, User, Loader2, ArrowUpDown, Download, ShieldAlert } from 'lucide-react'
 import { exportToExcel } from '../../utils/exportExcel'
 export const AdminActivatedCards = () => {
     const [activations, setActivations] = useState([])
@@ -62,20 +62,20 @@ export const AdminActivatedCards = () => {
     }
 
     return (
-        <div className="max-w-6xl mx-auto">
-            <div className="flex justify-between items-center mb-8">
+        <div className="max-w-6xl mx-auto pb-10">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold flex items-center gap-3">
+                    <h1 className="text-2xl sm:text-3xl font-black flex items-center gap-3 uppercase tracking-tight">
                         <FileText className="text-primary" />
                         Activated Cards Ledger
                     </h1>
-                    <p className="text-gray-400 mt-2">Log of all successfully activated cards and their associated invoices.</p>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2 font-medium">Log of all successfully activated cards and their associated invoices.</p>
                 </div>
 
-                <div className="flex bg-surface/50 border border-white/5 rounded-xl overflow-hidden w-full sm:w-auto">
-                    <div className="px-4 py-2 flex items-center gap-3 bg-black/20">
-                        <span className="text-sm text-gray-400 font-bold uppercase tracking-wider">Total Records</span>
-                        <span className="text-2xl font-mono text-white">{activations.length}</span>
+                <div className="flex bg-surface/80 backdrop-blur border border-white/5 rounded-2xl overflow-hidden w-full sm:w-auto shadow-xl">
+                    <div className="flex-1 sm:flex-none px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 bg-black/20">
+                        <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest leading-none">Total Records</span>
+                        <span className="text-xl sm:text-2xl font-black text-white leading-none">{activations.length.toLocaleString()}</span>
                     </div>
                     <button
                         onClick={() => {
@@ -91,11 +91,11 @@ export const AdminActivatedCards = () => {
                             }))
                             exportToExcel(exportData, 'Activated_Cards_Export')
                         }}
-                        className="px-4 py-2 flex items-center gap-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 font-bold transition-colors border-l border-white/5"
+                        className="flex-none px-5 py-3 flex items-center justify-center gap-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 font-black transition-colors border-l border-white/5"
                         title="Export to Excel"
                     >
                         <Download size={18} />
-                        Export
+                        <span className="text-sm">Export</span>
                     </button>
                 </div>
             </div>
@@ -107,26 +107,27 @@ export const AdminActivatedCards = () => {
             )}
 
             <div className="bg-surface border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
-                <div className="overflow-x-auto">
+                {/* Desktop View Table */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-black/40 border-b border-white/10 text-xs uppercase tracking-wider text-gray-400">
+                            <tr className="bg-black/40 border-b border-white/10 text-xs uppercase tracking-wider text-gray-400 font-black">
                                 <th className="p-4 font-semibold w-48">Card Instance</th>
                                 <th className="p-4 font-semibold w-40">Serial Number</th>
-                                <th className="p-4 font-semibold">Date Opened (WIB)</th>
+                                <th className="p-4 font-semibold">Date Opened</th>
                                 <th className="p-4 font-semibold cursor-pointer hover:bg-white/5 transition-colors group" onClick={toggleSort}>
                                     <div className="flex items-center gap-2">
-                                        Activation Time (WIB)
+                                        Activation Time
                                         <ArrowUpDown size={14} className="opacity-50 group-hover:opacity-100 transition-opacity" />
                                     </div>
                                 </th>
                                 <th className="p-4 font-semibold w-56">Invoice Ref</th>
                                 <th className="p-4 font-semibold">Owner Email</th>
-                                <th className="p-4 font-semibold">Activated By (Admin)</th>
+                                <th className="p-4 font-semibold">Activated By</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
-                            {loading ? (
+                            {loading && activations.length === 0 ? (
                                 <tr>
                                     <td colSpan="7" className="p-12 text-center text-gray-500">
                                         <div className="flex flex-col items-center justify-center gap-3">
@@ -137,7 +138,7 @@ export const AdminActivatedCards = () => {
                                 </tr>
                             ) : activations.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" className="p-12 text-center text-gray-500">
+                                    <td colSpan="7" className="p-12 text-center text-gray-500 font-medium">
                                         No activated cards found in the system.
                                     </td>
                                 </tr>
@@ -151,7 +152,7 @@ export const AdminActivatedCards = () => {
                                                     {record.card_templates?.name}
                                                 </span>
                                                 <div>
-                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded bg-rarity-${record.card_templates?.rarity.toLowerCase()}/20 text-rarity-${record.card_templates?.rarity.toLowerCase()}`}>
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded bg-rarity-${record.card_templates?.rarity.toLowerCase()}/20 text-rarity-${record.card_templates?.rarity.toLowerCase()}`}>
                                                         {record.card_templates?.rarity}
                                                     </span>
                                                 </div>
@@ -169,7 +170,7 @@ export const AdminActivatedCards = () => {
                                         <td className="p-4 align-top whitespace-nowrap">
                                             <div className="flex flex-col text-sm text-gray-300">
                                                 <span className="text-white">
-                                                    {record.opened_at ? new Date(record.opened_at).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }) : 'Legacy'}
+                                                    {record.opened_at ? new Date(record.opened_at).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }) : <span className="text-gray-600 italic">Legacy</span>}
                                                 </span>
                                             </div>
                                         </td>
@@ -222,6 +223,73 @@ export const AdminActivatedCards = () => {
                             )}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Mobile View Cards */}
+                <div className="md:hidden divide-y divide-white/5">
+                    {loading && activations.length === 0 ? (
+                        <div className="p-12 text-center text-gray-500">
+                            <Loader2 className="animate-spin text-primary mx-auto mb-3" size={32} />
+                            <p>Loading records...</p>
+                        </div>
+                    ) : activations.length === 0 ? (
+                        <div className="p-12 text-center text-gray-500 font-medium">
+                            No activated cards found.
+                        </div>
+                    ) : (
+                        activations.map((record) => (
+                            <div key={record.id} className="p-4 flex flex-col gap-4">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="font-bold text-white text-lg leading-tight uppercase tracking-tight">
+                                            {record.card_templates?.name}
+                                        </span>
+                                        <div>
+                                            <span className={`text-[10px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded bg-rarity-${record.card_templates?.rarity.toLowerCase()}/20 text-rarity-${record.card_templates?.rarity.toLowerCase()}`}>
+                                                {record.card_templates?.rarity}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="block text-xs font-black text-white uppercase tracking-tighter">
+                                            {new Date(record.activated_at).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' })}
+                                        </span>
+                                        <span className="text-[10px] text-gray-500 flex items-center justify-end gap-1 mt-0.5 font-bold">
+                                            <Clock size={10} /> {new Date(record.activated_at).toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' })}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-black/30 p-2 rounded-lg border border-white/5 overflow-hidden">
+                                        <span className="block text-[8px] text-gray-500 font-black uppercase tracking-widest mb-1">Serial Number</span>
+                                        <span className="text-[10px] font-mono text-gray-300 truncate block">
+                                            {record.serial_number}
+                                        </span>
+                                    </div>
+                                    <div className="bg-black/30 p-2 rounded-lg border border-white/5 overflow-hidden">
+                                        <span className="block text-[8px] text-gray-500 font-black uppercase tracking-widest mb-1">Invoice Reference</span>
+                                        <span className={`text-[10px] font-mono truncate block ${record.activated_invoice_number ? 'text-green-400 font-bold' : 'text-gray-600 italic'}`}>
+                                            {record.activated_invoice_number || 'Legacy'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex items-center gap-2 text-[10px] text-gray-400 bg-white/5 p-2 rounded-lg">
+                                        <User size={12} className="text-gray-500" />
+                                        <span className="font-medium text-gray-400 uppercase tracking-tighter mr-1">Owner:</span>
+                                        <span className="truncate text-white font-bold">{record.user_profiles?.email || 'Unknown'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px] text-gray-400 bg-white/5 p-2 rounded-lg">
+                                        <ShieldAlert size={12} className="text-gray-500" />
+                                        <span className="font-medium text-gray-400 uppercase tracking-tighter mr-1">Verified By:</span>
+                                        <span className="truncate text-gray-300">{record.activator?.email || 'System'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
 

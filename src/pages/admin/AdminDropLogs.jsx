@@ -101,7 +101,7 @@ export const AdminDropLogs = () => {
     }
 
     return (
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto pb-12 px-4 sm:px-6">
             <style>{`
                 @keyframes epicGlow {
                     0%, 100% { text-shadow: 0 0 5px rgba(168, 85, 247, 0.4); }
@@ -130,79 +130,83 @@ export const AdminDropLogs = () => {
                 }
             `}</style>
 
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4 sm:gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold flex items-center gap-3">
+                    <h1 className="text-2xl sm:text-3xl font-black flex items-center gap-3 uppercase tracking-tight">
                         <Sparkles className="text-yellow-400" />
                         Live Drop Logs
                     </h1>
-                    <p className="text-gray-400 mt-2">Real-time global monitor of lootbox openings and card acquisitions.</p>
+                    <p className="text-xs sm:text-sm text-gray-500 font-medium tracking-tight">Real-time global monitor of lootbox openings and card acquisitions.</p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
-                    <div className="flex items-center gap-3 bg-surface/50 border border-white/10 rounded-xl px-4 py-2 flex-1 sm:flex-initial">
-                        <Filter className="text-gray-500" size={16} />
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
+                    <div className="flex items-center gap-3 bg-surface/80 backdrop-blur border border-white/10 rounded-2xl px-4 py-3 flex-1 lg:flex-initial shadow-lg">
+                        <Filter className="text-gray-500 shrink-0" size={18} />
                         <select
                             value={rarityFilter}
                             onChange={(e) => setRarityFilter(e.target.value)}
-                            className="bg-transparent text-white focus:outline-none cursor-pointer text-sm font-medium w-full"
+                            className="bg-transparent text-white focus:outline-none cursor-pointer text-sm font-black uppercase tracking-widest w-full appearance-none pr-8 relative z-10"
                         >
-                            <option value="All" className="bg-[#1e1e24]">All Rarities</option>
-                            <option value="Common" className="bg-[#1e1e24] text-gray-400">Common</option>
-                            <option value="Uncommon" className="bg-[#1e1e24] text-green-400">Uncommon</option>
-                            <option value="Rare" className="bg-[#1e1e24] text-blue-400">Rare</option>
-                            <option value="Epic" className="bg-[#1e1e24] text-purple-400">Epic</option>
-                            <option value="Legendary" className="bg-[#1e1e24] text-yellow-400">Legendary</option>
-                            <option value="Mythic" className="bg-[#1e1e24] text-red-500">Mythic / Mystic</option>
+                            <option value="All">All Rarities</option>
+                            <option value="Common">Common</option>
+                            <option value="Uncommon">Uncommon</option>
+                            <option value="Rare">Rare</option>
+                            <option value="Epic">Epic</option>
+                            <option value="Legendary">Legendary</option>
+                            <option value="Mythic">Mythic</option>
                         </select>
                     </div>
 
-                    <div className="bg-surface/50 border border-white/5 rounded-xl px-4 py-2 flex items-center justify-between sm:justify-start gap-3">
-                        <span className="text-sm text-gray-400 font-bold uppercase tracking-wider flex items-center gap-1.5 flex-nowrap shrink-0">
-                            {page === 0 && sortOrder === 'desc' && <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>} Live Updates
-                        </span>
-                        <span className="text-xs text-gray-500 font-mono whitespace-nowrap pl-2 border-l border-white/10 shrink-0">Updated: {lastUpdated.toLocaleTimeString()}</span>
+                    <div className="bg-surface/80 backdrop-blur border border-white/5 rounded-2xl px-4 py-3 flex items-center justify-between sm:justify-start gap-4 shadow-xl border-b-2 border-b-green-500/20">
+                        <div className="flex items-center gap-2">
+                            {page === 0 && sortOrder === 'desc' && <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)] animate-pulse"></div>}
+                            <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest whitespace-nowrap">Live Stream</span>
+                        </div>
+                        <span className="text-xs text-white font-mono whitespace-nowrap pl-4 border-l border-white/10 shrink-0 tabular-nums">{lastUpdated.toLocaleTimeString('id-ID')}</span>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-surface border border-white/5 rounded-2xl overflow-hidden shadow-2xl relative">
+            <div className="bg-surface border border-white/5 rounded-3xl overflow-hidden shadow-2xl relative">
                 {/* Visual Radar/Scanline Effect */}
-                <div className="absolute inset-0 scanline opacity-20"></div>
+                <div className="absolute inset-0 scanline opacity-10 pointer-events-none"></div>
 
-                <div className="overflow-x-auto relative z-10">
+                {/* Desktop View Table */}
+                <div className="hidden lg:block overflow-x-auto relative z-10">
                     <table className="w-full text-left border-collapse min-w-[1000px]">
                         <thead>
                             <tr className="bg-black/60 border-b border-white/10 text-[10px] uppercase tracking-[0.2em] font-black text-gray-500 relative">
-                                <th className="p-4 w-40">Rarity</th>
-                                <th className="p-4 w-56">Card Name</th>
-                                <th className="p-4 w-32">Serial</th>
-                                <th className="p-4 w-32">Power (Discount)</th>
-                                <th className="p-4 w-48">Weakness (Validity)</th>
-                                <th className="p-4">Owner (Finder)</th>
+                                <th className="p-4 w-40">Tier Status</th>
+                                <th className="p-4 w-56">Foundation</th>
+                                <th className="p-4 w-32">Serial ID</th>
+                                <th className="p-4 w-32">Attributes</th>
+                                <th className="p-4 w-48">Active Window</th>
+                                <th className="p-4">Discovered By</th>
                                 <th
-                                    className="p-4 w-48 cursor-pointer hover:text-white transition-colors group flex items-center gap-2"
+                                    className="p-4 w-48 cursor-pointer hover:text-white transition-colors group"
                                     onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
                                 >
-                                    Acquired At (WIB)
-                                    <ArrowUpDown size={12} className="opacity-50 group-hover:opacity-100" />
+                                    <div className="flex items-center gap-2">
+                                        Acquisition
+                                        <ArrowUpDown size={12} className="opacity-50 group-hover:opacity-100" />
+                                    </div>
                                 </th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {loading && drops.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" className="p-16 text-center text-gray-500">
-                                        <div className="flex flex-col items-center justify-center gap-3">
-                                            <Loader2 className="animate-spin text-primary" size={32} />
-                                            <p className="tracking-widest uppercase text-xs font-bold">Connecting to Drop Feed...</p>
+                                    <td colSpan="7" className="p-16 text-center">
+                                        <div className="flex flex-col items-center justify-center gap-4">
+                                            <Loader2 className="animate-spin text-primary" size={40} />
+                                            <p className="tracking-[0.2em] uppercase text-xs font-black text-gray-500">Linking Neural Feed...</p>
                                         </div>
                                     </td>
                                 </tr>
                             ) : drops.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" className="p-12 text-center text-gray-500">
-                                        No drops recorded in the database natively yet.
+                                    <td colSpan="7" className="p-12 text-center text-gray-500 font-black uppercase tracking-widest text-xs">
+                                        No recent anomalies detected.
                                     </td>
                                 </tr>
                             ) : (
@@ -210,61 +214,54 @@ export const AdminDropLogs = () => {
                                     const rarityColor = `text-rarity-${drop.card_templates?.rarity?.toLowerCase() || 'common'}`
 
                                     return (
-                                        <tr key={drop.id} className="hover:bg-white/5 transition-colors group">
-                                            {/* Rarity */}
+                                        <tr key={drop.id} className="hover:bg-white/5 transition-colors group/row">
                                             <td className="p-4 align-middle">
-                                                <div className={`font-black text-lg ${rarityColor} ${getRarityAnimationClass(drop.card_templates?.rarity)}`}>
+                                                <div className={`font-black text-xl tracking-tighter ${rarityColor} ${getRarityAnimationClass(drop.card_templates?.rarity)}`}>
                                                     {drop.card_templates?.rarity}
                                                 </div>
                                             </td>
 
-                                            {/* Name */}
                                             <td className="p-4 align-middle">
-                                                <div className="font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                                                    {(drop.card_templates?.rarity?.toLowerCase() === 'mythic' || drop.card_templates?.rarity?.toLowerCase() === 'mystic') && <Sparkles size={14} className="text-red-500 animate-ping absolute -ml-5" />}
-                                                    <span className="truncate max-w-[200px]" title={drop.card_templates?.name}>{drop.card_templates?.name}</span>
+                                                <div className="font-black text-white uppercase tracking-tight flex items-center gap-3">
+                                                    {(drop.card_templates?.rarity?.toLowerCase() === 'mythic' || drop.card_templates?.rarity?.toLowerCase() === 'mystic') && <Sparkles size={14} className="text-red-500 animate-pulse" />}
+                                                    <span className="truncate max-w-[200px]">{drop.card_templates?.name}</span>
                                                 </div>
                                             </td>
 
-                                            {/* Serial */}
                                             <td className="p-4 align-middle">
-                                                <span className="text-xs font-mono text-gray-300 bg-black/40 px-2 py-1 rounded border border-white/5 whitespace-nowrap">
+                                                <span className="text-[10px] font-mono font-black text-gray-400 bg-black/60 px-2 py-1 rounded border border-white/5 whitespace-nowrap tracking-widest shadow-inner">
                                                     #{drop.serial_number}
                                                 </span>
                                             </td>
 
-                                            {/* Power */}
                                             <td className="p-4 align-middle">
-                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-green-500/10 border border-green-500/30 text-green-400 font-black shadow-[0_0_10px_rgba(34,197,94,0.1)] group-hover:shadow-[0_0_15px_rgba(34,197,94,0.3)] transition-shadow">
+                                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 font-black text-xs">
                                                     <Zap size={14} />
-                                                    {drop.locked_discount_percentage}% OFF
+                                                    {drop.locked_discount_percentage}%
                                                 </span>
                                             </td>
 
-                                            {/* Weakness (Validity) */}
                                             <td className="p-4 align-middle">
-                                                <span className="text-xs font-mono text-orange-300 bg-orange-500/10 px-2.5 py-1 rounded border border-orange-500/20 whitespace-nowrap">
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-orange-400/80 bg-orange-500/5 px-2.5 py-1 rounded-lg border border-orange-500/10">
                                                     {formatWeakness(drop)}
                                                 </span>
                                             </td>
 
-                                            {/* Owner */}
                                             <td className="p-4 align-middle">
                                                 <div className="flex items-center gap-2 text-sm text-gray-300" title={drop.user_profiles?.email || 'Unknown'}>
                                                     <User size={14} className="text-gray-500" />
-                                                    <span className="truncate max-w-[180px] font-medium">{drop.user_profiles?.email || 'Unknown'}</span>
+                                                    <span className="truncate max-w-[180px] font-bold">{drop.user_profiles?.email?.split('@')[0] || 'Unknown'}</span>
                                                 </div>
                                             </td>
 
-                                            {/* Acquired At */}
                                             <td className="p-4 align-middle whitespace-nowrap">
                                                 <div className="flex flex-col text-sm text-gray-300">
-                                                    <span className="font-medium text-white">
-                                                        {drop.opened_at ? new Date(drop.opened_at).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }) : 'N/A'}
+                                                    <span className="font-bold text-white uppercase text-[10px] tracking-widest">
+                                                        {drop.opened_at ? new Date(drop.opened_at).toLocaleDateString('id-ID') : 'N/A'}
                                                     </span>
                                                     {drop.opened_at && (
-                                                        <span className="text-xs text-blue-400/70 font-mono mt-0.5 tracking-wider">
-                                                            {new Date(drop.opened_at).toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' })}
+                                                        <span className="text-[10px] text-primary font-black mt-0.5 tracking-tighter tabular-nums">
+                                                            {new Date(drop.opened_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                                                         </span>
                                                     )}
                                                 </div>
@@ -275,6 +272,65 @@ export const AdminDropLogs = () => {
                             )}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Mobile View Cards */}
+                <div className="lg:hidden divide-y divide-white/5 relative z-10">
+                    {loading && drops.length === 0 ? (
+                        <div className="p-16 text-center">
+                            <Loader2 className="animate-spin text-primary mx-auto mb-4" size={32} />
+                            <p className="tracking-[0.2em] uppercase text-[10px] font-black text-gray-500">Neural Sync...</p>
+                        </div>
+                    ) : drops.length === 0 ? (
+                        <div className="p-12 text-center text-gray-500 font-black uppercase tracking-widest text-[10px]">
+                            No live feed detected.
+                        </div>
+                    ) : (
+                        drops.map((drop) => (
+                            <div key={drop.id} className="p-5 flex flex-col gap-4 group/card active:bg-white/5 transition-colors">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex flex-col">
+                                        <div className={`text-xl font-black tracking-tighter uppercase ${getRarityAnimationClass(drop.card_templates?.rarity)} text-rarity-${drop.card_templates?.rarity?.toLowerCase()}`}>
+                                            {drop.card_templates?.rarity}
+                                        </div>
+                                        <div className="text-sm font-black text-white uppercase tracking-tight mt-0.5 truncate max-w-[200px]">
+                                            {drop.card_templates?.name}
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="text-[10px] font-mono font-black text-gray-500 bg-black/40 px-2 py-1 rounded border border-white/5 tracking-widest">
+                                            #{drop.serial_number.split('-').pop()}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-black/30 p-2.5 rounded-2xl border border-white/5 flex flex-col gap-1 items-center justify-center">
+                                        <span className="text-[8px] text-gray-500 font-black uppercase tracking-[0.2em]">Acquisition</span>
+                                        <span className="text-[10px] text-white font-black tabular-nums">
+                                            {drop.opened_at ? new Date(drop.opened_at).toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }) : '---'}
+                                        </span>
+                                    </div>
+                                    <div className="bg-white/5 p-2.5 rounded-2xl border border-white/5 flex flex-col gap-1 items-center justify-center">
+                                        <span className="text-[8px] text-gray-500 font-black uppercase tracking-[0.2em]">Discovered By</span>
+                                        <span className="text-[10px] text-primary font-black truncate w-full text-center">
+                                            {drop.user_profiles?.email?.split('@')[0] || 'Unknown'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between gap-4">
+                                    <div className="flex-1 flex items-center gap-2 bg-green-500/10 px-3 py-2 rounded-xl border border-green-500/20">
+                                        <Zap size={12} className="text-green-400" />
+                                        <span className="text-[10px] font-black text-green-400 uppercase tracking-widest">Power: {drop.locked_discount_percentage}% OFF</span>
+                                    </div>
+                                    <div className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
+                                        {drop.opened_at ? new Date(drop.opened_at).toLocaleDateString('id-ID') : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
 
