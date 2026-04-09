@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
-import { Search, CheckCircle, XCircle, FileText } from 'lucide-react'
+import { Search, CheckCircle, XCircle, FileText, Camera } from 'lucide-react'
 import { FallbackImage } from '../../components/FallbackImage'
+import { Scanner } from '../../components/Scanner'
 
 export const AdminActivate = () => {
     const { user } = useAuth()
@@ -12,6 +13,7 @@ export const AdminActivate = () => {
     const [result, setResult] = useState(null)
     const [error, setError] = useState(null)
     const [availableCards, setAvailableCards] = useState(0) // NEW
+    const [showScanner, setShowScanner] = useState(false)
 
     useEffect(() => {
         const fetchAvailable = async () => {
@@ -29,8 +31,12 @@ export const AdminActivate = () => {
     }, [])
 
     const handleVerify = async (e) => {
-        e.preventDefault()
-        if (!serial.trim()) return
+        if (e) e.preventDefault()
+        verifySerial(serial)
+    }
+
+    const verifySerial = async (serialToVerify) => {
+        if (!serialToVerify || !serialToVerify.trim()) return
 
         setLoading(true)
         setError(null)
@@ -44,7 +50,7 @@ export const AdminActivate = () => {
           user_profiles!card_instances_owner_id_fkey(email),
           card_templates(name, rarity, image_url, description)
         `)
-                .eq('serial_number', serial.trim())
+                .eq('serial_number', serialToVerify.trim())
                 .single()
 
             if (fetchError) {
@@ -58,6 +64,12 @@ export const AdminActivate = () => {
         } finally {
             setLoading(false)
         }
+    }
+
+    const handleScan = (decodedText) => {
+        setSerial(decodedText)
+        setShowScanner(false)
+        verifySerial(decodedText)
     }
 
     const handleActivate = async () => {
@@ -142,10 +154,18 @@ export const AdminActivate = () => {
                             type="text"
                             placeholder="Enter Serial Number (e.g., BNS-XXXX-YYYY)"
                             required
-                            className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:outline-none focus:border-primary text-lg transition-colors placeholder-gray-600"
+                            className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-12 py-4 text-white focus:outline-none focus:border-primary text-lg transition-colors placeholder-gray-600"
                             value={serial}
                             onChange={e => setSerial(e.target.value)}
                         />
+                        <button
+                            type="button"
+                            onClick={() => setShowScanner(true)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-primary transition-colors"
+                            title="Scan QR Code"
+                        >
+                            <Camera size={24} />
+                        </button>
                     </div>
                     <button
                         type="submit"
@@ -260,6 +280,13 @@ export const AdminActivate = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {showScanner && (
+                <Scanner 
+                    onScan={handleScan} 
+                    onClose={() => setShowScanner(false)} 
+                />
             )}
         </div>
     )
