@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { Search } from 'lucide-react'
+import { Search, RefreshCw } from 'lucide-react'
 
 export const AdminGrant = () => {
     const [users, setUsers] = useState([])

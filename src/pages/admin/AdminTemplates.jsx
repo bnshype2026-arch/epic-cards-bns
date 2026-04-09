@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { Plus, X, Info, Edit2, Trash2 } from 'lucide-react'
+import { Plus, X, Info, Edit2, Trash2, Database } from 'lucide-react'
 import { FallbackImage } from '../../components/FallbackImage'
 
 export const AdminTemplates = () => {
