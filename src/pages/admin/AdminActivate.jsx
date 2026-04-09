@@ -45,6 +45,8 @@ export const AdminActivate = () => {
         const input = serialToVerify.trim()
         const isTokenFormat = input.startsWith('ACT-')
 
+        console.log(`[AdminActivate] Verifying input: ${input} (IsToken: ${isTokenFormat})`)
+
         try {
             let query = supabase
                 .from('card_instances')
@@ -55,28 +57,48 @@ export const AdminActivate = () => {
                 `)
 
             if (isTokenFormat) {
-                query = query.eq('activation_token', input)
-            } else {
-                query = query.eq('serial_number', input)
-            }
+                // Try exact match first
+                let { data, error: fetchError } = await query.eq('activation_token', input).single()
+                
+                if (fetchError && fetchError.code === 'PGRST116') {
+                    // Try case-insensitive match if exact fails (some scanners might lowercase)
+                    console.warn(`[AdminActivate] Exact token match failed, trying case-insensitive for: ${input}`)
+                    const { data: ciData, error: ciError } = await supabase
+                        .from('card_instances')
+                        .select(`
+                            *,
+                            user_profiles!card_instances_owner_id_fkey(email, id),
+                            card_templates(name, rarity, image_url, description)
+                        `)
+                        .ilike('activation_token', input)
+                        .single()
+                    
+                    data = ciData
+                    fetchError = ciError
+                }
 
-            const { data, error: fetchError } = await query.single()
-
-            if (fetchError) {
-                if (fetchError.code === 'PGRST116') throw new Error(isTokenFormat ? 'Invalid or Expired Activation Token' : 'Card not found')
-                throw fetchError
-            }
-
-            // If it was found via token, verify expiry
-            if (isTokenFormat) {
+                if (fetchError) {
+                    if (fetchError.code === 'PGRST116') throw new Error('Invalid or Expired Activation Token. Please check if a new one was generated.')
+                    throw fetchError
+                }
+                
                 const expiry = new Date(data.activation_token_expires_at)
                 if (expiry < new Date()) {
-                    throw new Error('This activation token has expired (15-minute limit). Please ask the user to generate a new one.')
+                    throw new Error('This activation token has expired. Please ask the user to generate a new one.')
                 }
+                setResult(data)
+            } else {
+                // Fallback for direct serial activation (Legacy or Manual Override)
+                const { data, error: fetchError } = await query.eq('serial_number', input).single()
+                
+                if (fetchError) {
+                    if (fetchError.code === 'PGRST116') throw new Error('Card Record Not Found.')
+                    throw fetchError
+                }
+                setResult(data)
             }
-
-            setResult(data)
         } catch (err) {
+            console.error(`[AdminActivate] Verification Error:`, err)
             setError(err.message)
         } finally {
             setLoading(false)

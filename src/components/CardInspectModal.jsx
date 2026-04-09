@@ -45,7 +45,7 @@ const Countdown = ({ expiryDate, onExpire, isToken = false }) => {
     )
 }
 
-export const CardInspectModal = ({ instance, onClose, onDelete }) => {
+export const CardInspectModal = ({ instance, onClose, onDelete, onUpdate }) => {
     const [showQR, setShowQR] = useState(false)
     const [isGenerating, setIsGenerating] = useState(false)
     const [token, setToken] = useState(instance.activation_token)
@@ -67,26 +67,33 @@ export const CardInspectModal = ({ instance, onClose, onDelete }) => {
     const generateActivationToken = async () => {
         setIsGenerating(true)
         try {
-            // Simple random token generator
-            const newToken = `ACT-${Math.random().toString(36).substring(2, 8).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+            // More robust token generation
+            const charset = '0123456789ABCDEFGHJKLMNPQRSTUVWXYZ' // Removed confusing O, I, 1, 0
+            const genPart = (len) => Array.from({ length: len }, () => charset.charAt(Math.floor(Math.random() * charset.length))).join('')
+            const newToken = `ACT-${genPart(6)}-${genPart(6)}`
             const newExpiry = new Date(Date.now() + 15 * 60 * 1000).toISOString() // 15 minutes
 
-            const { error } = await supabase
+            const { data, error } = await supabase
                 .from('card_instances')
                 .update({
                     activation_token: newToken,
                     activation_token_expires_at: newExpiry
                 })
                 .eq('id', instance.id)
+                .select() // Verify the update happened
 
             if (error) throw error
+            if (!data || data.length === 0) {
+                throw new Error('Access Denied: You do not have permission to initiate activation or the card record was not found.')
+            }
 
             setToken(newToken)
             setTokenExpiry(newExpiry)
+            if (onUpdate) onUpdate(instance.id, { activation_token: newToken, activation_token_expires_at: newExpiry })
             setShowQR(true)
         } catch (err) {
             console.error('Failed to generate token:', err)
-            alert('Security Error: Failed to generate activation token.')
+            alert(err.message || 'Security Error: Failed to generate activation token.')
         } finally {
             setIsGenerating(false)
         }
@@ -107,6 +114,7 @@ export const CardInspectModal = ({ instance, onClose, onDelete }) => {
 
             setToken(null)
             setTokenExpiry(null)
+            if (onUpdate) onUpdate(instance.id, { activation_token: null, activation_token_expires_at: null })
             setShowQR(false)
         } catch (err) {
             console.error('Failed to cancel token:', err)

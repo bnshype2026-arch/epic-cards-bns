@@ -187,6 +187,13 @@ export const UserCollection = () => {
         setInspectedCard(instance)
     }
 
+    const handleUpdateCard = (id, updates) => {
+        setCards(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c))
+        if (inspectedCard && inspectedCard.id === id) {
+            setInspectedCard(prev => ({ ...prev, ...updates }))
+        }
+    }
+
     if (loading) return <div className="text-center py-12">Loading collection...</div>
 
     return (
@@ -401,6 +408,7 @@ export const UserCollection = () => {
                     instance={inspectedCard}
                     onClose={() => setInspectedCard(null)}
                     onDelete={() => handleDeleteCard(inspectedCard.id)}
+                    onUpdate={handleUpdateCard}
                 />
             )}
         </div>
